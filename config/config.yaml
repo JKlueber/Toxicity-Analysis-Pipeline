@@ -1,0 +1,14 @@
+elasticsearch:
+  host: "https://elasticsearch.srv.webis.de"
+  port: 9200
+  user: "po87xox"
+  password_file: "passwords/webis-elasticsearch.txt"
+  index: "corpus_mastodon_statuses*"
+  language: "en"
+
+date_range:
+  after: "2023-12-01T00:00:00"
+  before: "2024-02-22T00:00:00"
+
+toxicity_analysis:
+  batch_size: 128
