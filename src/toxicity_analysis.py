@@ -2,6 +2,8 @@ import torch
 from transformers import pipeline
 from elasticsearch_utils import execute_scan
 from text_processing import detect_language, extract_text_from_hit
+import json
+import os
 
 class Toxicity:
     def __init__(self, toxicity=0, severe_toxicity=0, obscene=0, threat=0, insult=0, identity_attack=0):
@@ -66,29 +68,58 @@ def load_toxicity_model():
         return_all_scores=True
     )
 
-def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128):
+def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, output_path='../data/toxicity_results.json'):
     toxicitys = []
     batch = []
 
-    it = execute_scan(filtered_search, es, index)
-
+    it = execute_scan(filtered_search, es, index, size=10)
+    count = 0
     for hit in it:
+        count += 1
         plaintext = extract_text_from_hit(hit)
         lang = detect_language(plaintext, lang_detector)
+        hit_id = hit.get('_id')
+        crawled_from_instance = hit['_source'].get('crawled_from_instance')
+        instance = hit['_source'].get('instance')
+        is_local = hit['_source'].get('is_local')
 
         if lang == '__label__en':
-            batch.append(plaintext)
+            batch.append({
+                'text': plaintext,
+                'id': hit_id,
+                'crawled_from_instance': crawled_from_instance,
+                'instance': instance,
+                'is_local': is_local
+            })
             if len(batch) == batch_size:
-                predictions = toxic_bert(batch) 
-                for prediction in predictions:
+                predictions = toxic_bert([item['text'] for item in batch]) 
+                for item, prediction in zip(batch, predictions):
                     toxicity = Toxicity.from_prediction([prediction])
-                    toxicitys.append(toxicity)
+                    toxicitys.append({
+                        'id': item['id'],
+                        'crawled_from_instance': item['crawled_from_instance'],
+                        'instance': item['instance'],
+                        'is_local': item['is_local'],
+                        'toxicity': toxicity.to_dict()
+                    })
                 batch = []
+        if count > 2:
+            break
 
     if batch:
-        predictions = toxic_bert(batch)
-        for prediction in predictions:
+        predictions = toxic_bert([item['text'] for item in batch])
+        for item, prediction in zip(batch, predictions):
             toxicity = Toxicity.from_prediction([prediction])
-            toxicitys.append(toxicity)
+            toxicitys.append({
+                'id': item['id'],
+                'crawled_from_instance': item['crawled_from_instance'],
+                'instance': item['instance'],
+                'is_local': item['is_local'],
+                'toxicity': toxicity.to_dict()
+            })
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as json_file:
+        json.dump(toxicitys, json_file, indent=4) 
 
     return toxicitys
