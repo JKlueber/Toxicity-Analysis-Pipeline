@@ -29,15 +29,15 @@ def prepare_search_query(es, config):
 def execute_scan(filtered_search, es, index, size=1000):
     return scan(client=es, query=filtered_search.to_dict(), index=index, size=size)
 
-def get_all_instances(es, config):
-    aggregation = A('terms', field='instance.keyword', size=1)
-    search = Search(index=config['elasticsearch']['index']).using(es)
-    search.aggs.bucket('unique_instances', aggregation)
-    response = search.execute()
+# def get_all_instances(es, config):
+#     aggregation = A('terms', field='instance.keyword', size=1)
+#     search = Search(index=config['elasticsearch']['index']).using(es)
+#     search.aggs.bucket('unique_instances', aggregation)
+#     response = search.execute()
     
-    instances = []
-    buckets = response.aggregations.unique_instances.buckets
-    for bucket in buckets:
-        instances.append(bucket.key)
+#     instances = []
+#     buckets = response.aggregations.unique_instances.buckets
+#     for bucket in buckets:
+#         instances.append(bucket.key)
     
-    return instances
+#     return instances
