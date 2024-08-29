@@ -8,4 +8,5 @@
 #SBATCH --time=2-00:00:00                 
 #SBATCH --container-image=pytorch/pytorch:2.1.1-cuda12.1-cudnn8-runtime
 
-srun python3 toxic-bert/src/main.py
+srun cd toxic-bert/src
+srun python3 main.py
