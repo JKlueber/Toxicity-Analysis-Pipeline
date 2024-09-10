@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.1.1-cuda12.1-cudnn8-runtime
+FROM pytorch/pytorch:2.4.1-cuda11.8-cudnn9-runtime
 
 RUN apt-get update && apt-get install -y \
     git \
