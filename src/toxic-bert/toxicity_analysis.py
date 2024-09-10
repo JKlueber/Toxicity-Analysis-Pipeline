@@ -83,7 +83,7 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
         instance = hit['_source'].get('instance')
         is_local = hit['_source'].get('is_local')
 
-        if lang == '__label__en':
+        if lang == '__label__eng_Latn':
             batch.append({
                 'text': plaintext,
                 'id': hit_id,
