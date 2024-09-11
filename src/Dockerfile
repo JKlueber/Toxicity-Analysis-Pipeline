@@ -18,6 +18,7 @@ FROM pytorch/pytorch:2.4.1-cuda11.8-cudnn9-runtime
 # Install runtime dependencies including Slurm
 RUN apt-get update && apt-get install -y \
     git \
+    slurm-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed packages from the build stage
