@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=toxicity_analysis 
-#SBATCH --output=../data/output/log-%j.log              
-#SBATCH --error=../data/output/error-%j.log             
+#SBATCH --output=data/output/log-%j.log              
+#SBATCH --error=data/output/error-%j.log             
 #SBATCH --gres=gpu:ampere:1              
 #SBATCH --mem=64G                        
 #SBATCH --cpus-per-task=4                
