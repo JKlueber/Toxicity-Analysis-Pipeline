@@ -13,5 +13,9 @@
 srun --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.0.3 \
      python3 -c "import torch; print(torch.cuda.is_available())"
 
-srun python3 toxic-bert/main.py
+srun --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.0.3 \
+     --container-mounts=/etc/slurm:/etc/slurm,/usr/lib/x86_64-linux-gnu/slurm:/usr/lib/x86_64-linux-gnu/slurm,/run/munge:/run/munge \
+     --pty /bin/bash
+
+srun python3 src/toxic-bert/main.py
 
