@@ -23,6 +23,15 @@ RUN apt-get update && apt-get install -y \
 
 # Copy installed packages from the build stage
 COPY --from=builder /usr/local /usr/local
+COPY --from=builder /opt/conda/lib/python3.11/site-packages /opt/conda/lib/python3.11/site-packages
+
+# Check if the /root/.local/lib/python3.11/site-packages directory exists, and only copy if it does
+RUN if [ -d "/root/.local/lib/python3.11/site-packages" ]; then \
+        echo "Copying /root/.local/lib/python3.11/site-packages..."; \
+        cp -r /root/.local/lib/python3.11/site-packages /root/.local/lib/python3.11/site-packages; \
+    else \
+        echo "No /root/.local/lib/python3.11/site-packages found"; \
+    fi
 
 # Set working directory and copy application files
 WORKDIR /app
