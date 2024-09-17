@@ -10,7 +10,7 @@ import csv
 
 
 def main():
-    config_path = Path("../data/config/config.yaml")
+    config_path = Path("../../data/config/config.yaml")
     config = load_config(config_path)
 
     es = connect_to_elastic(config)
