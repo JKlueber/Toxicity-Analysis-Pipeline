@@ -68,7 +68,7 @@ def load_toxicity_model():
         return_all_scores=True
     )
 
-def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, output_path='../data/output/toxicity_results.json'):
+def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, output_path='../../data/output/toxicity_results.json'):
     toxicitys = []
     batch = []
 
@@ -103,7 +103,7 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
                         'toxicity': toxicity.to_dict()
                     })
                 batch = []
-        if count > 2:
+        if count > 5:
             break
 
     if batch:
