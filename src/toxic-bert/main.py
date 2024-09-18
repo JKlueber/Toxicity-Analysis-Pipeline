@@ -10,7 +10,7 @@ import csv
 
 
 def main():
-    config_path = Path("../../data/config/config.yaml")
+    config_path = Path("data/config/config.yaml")
     config = load_config(config_path)
 
     es = connect_to_elastic(config)
@@ -21,7 +21,7 @@ def main():
     filtered_search = base_search.filter(Term(language=language))
 
     lang_detector = load_language_detector()
-    toxic_bert = load_toxicity_model()#.to('cuda')
+    toxic_bert = load_toxicity_model().to('cuda')
 
     batch_size = config['toxicity_analysis']['batch_size']
     index = config['elasticsearch']['index']
