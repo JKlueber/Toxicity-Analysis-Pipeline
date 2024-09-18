@@ -13,5 +13,4 @@
 srun --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.0.4 \
      python3 -c "import torch; print(torch.cuda.is_available())"
 
-srun python3 src/toxic-bert/main.py
-
+srun --container-workdir=/app python3 src/toxic-bert/main.py
