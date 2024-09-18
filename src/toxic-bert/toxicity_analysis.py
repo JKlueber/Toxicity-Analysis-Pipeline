@@ -60,13 +60,21 @@ class Toxicity:
         }
 
 def load_toxicity_model():
-    return pipeline(
+    classifier = pipeline(
         'text-classification', 
         model='unitary/toxic-bert', 
         tokenizer='bert-base-uncased', 
         function_to_apply='sigmoid', 
         return_all_scores=True
-    ).to('cuda')
+    )
+    
+    if torch.cuda.is_available():
+        classifier.model = classifier.model.to('cuda')
+        print("Model moved to GPU")
+    else:
+        print("CUDA not available, using CPU")
+    
+    return classifier
 
 def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, output_path='data/output/toxicity_results.json'):
     toxicitys = []
