@@ -66,8 +66,7 @@ def load_toxicity_model():
         'text-classification', 
         model='unitary/toxic-bert', 
         tokenizer='bert-base-uncased', 
-        function_to_apply='sigmoid', 
-        return_all_scores=True,
+        top_k=None, 
         device=device 
     )
     
