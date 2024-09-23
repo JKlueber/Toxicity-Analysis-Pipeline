@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=4                
 #SBATCH --time=2-00:00:00                 
 #SBATCH --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.0.4
-#SBATCH --container-mounts=/etc/slurm:/etc/slurm,/usr/lib/x86_64-linux-gnu/slurm:/usr/lib/x86_64-linux-gnu/slurm,/run/munge:/run/munge
+#SBATCH --container-mounts=/etc/slurm:/etc/slurm,/usr/lib/x86_64-linux-gnu/slurm:/usr/lib/x86_64-linux-gnu/slurm,/run/munge:/run/munge, ~/thesis-klueber:/app
 
 # Debug the environment
 srun --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.0.4 \
