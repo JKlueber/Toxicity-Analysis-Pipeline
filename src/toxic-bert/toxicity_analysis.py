@@ -96,7 +96,6 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
             })
             if len(batch) == batch_size:
                 predictions = toxic_bert([item['text'] for item in batch]) 
-                print(predictions) 
                 for item, prediction in zip(batch, predictions):
                     toxicity = Toxicity.from_prediction([prediction])
                     toxicitys.append({
