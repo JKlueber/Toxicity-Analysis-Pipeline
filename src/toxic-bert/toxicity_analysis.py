@@ -60,7 +60,7 @@ class Toxicity:
         }
 
 def load_toxicity_model():
-    device = -1 # 0 if torch.cuda.is_available() else -1
+    device = 0 if torch.cuda.is_available() else -1
 
     return pipeline(
         'text-classification', 
