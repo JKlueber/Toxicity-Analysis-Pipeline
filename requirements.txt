@@ -9,4 +9,4 @@ ipykernel==6.29.5
 seaborn
 resiliparse
 pyyaml
-transformers
+git+https://github.com/huggingface/transformers.git
