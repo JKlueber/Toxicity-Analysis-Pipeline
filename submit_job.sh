@@ -9,9 +9,6 @@
 #SBATCH --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.1.0
 #SBATCH --container-mounts=/etc/slurm:/etc/slurm,/usr/lib/x86_64-linux-gnu/slurm:/usr/lib/x86_64-linux-gnu/slurm,/run/munge:/run/munge,/mnt/ceph/storage/data-tmp/current/po87xox/thesis-klueber:/tmp
 
-# Debug the environment
-srun --container-workdir=/ \
-     --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.1.0 \
-     ls /tmp/data/config
+srun --container-workdir=/tmp --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.1.0 ls -R /tmp
 
 srun --container-workdir=/tmp python3 src/toxic-bert/main.py
