@@ -7,11 +7,11 @@
 #SBATCH --cpus-per-task=4                
 #SBATCH --time=2-00:00:00                 
 #SBATCH --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.1.0
-#SBATCH --container-mounts=/etc/slurm:/etc/slurm,/usr/lib/x86_64-linux-gnu/slurm:/usr/lib/x86_64-linux-gnu/slurm,/run/munge:/run/munge,/mnt/ceph/storage/data-tmp/current/po87xox/thesis-klueber:/app
+#SBATCH --container-mounts=/etc/slurm:/etc/slurm,/usr/lib/x86_64-linux-gnu/slurm:/usr/lib/x86_64-linux-gnu/slurm,/run/munge:/run/munge,/mnt/ceph/storage/data-tmp/current/po87xox/thesis-klueber:/tmp
 
 # Debug the environment
 srun --container-workdir=/ \
      --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.1.0 \
-     ls /app
-     
-srun --container-workdir=/app python3 src/toxic-bert/main.py
+     ls /tmp/data/
+
+srun --container-workdir=/tmp python3 src/toxic-bert/main.py

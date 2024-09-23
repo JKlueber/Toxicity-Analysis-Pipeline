@@ -34,7 +34,7 @@ RUN if [ -d "/root/.local/lib/python3.11/site-packages" ]; then \
     fi
 
 # Set working directory and copy application files
-WORKDIR /app
+WORKDIR /tmp
 
 # Optional: Clean up
 RUN apt-get clean
