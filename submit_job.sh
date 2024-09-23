@@ -12,6 +12,6 @@
 # Debug the environment
 srun --container-workdir=/ \
      --container-image=registry.webis.de/code-teaching/theses/thesis-klueber/toxicity:0.1.0 \
-     ls /tmp/data/
+     ls /tmp/data/config
 
 srun --container-workdir=/tmp python3 src/toxic-bert/main.py
