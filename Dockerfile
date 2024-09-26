@@ -17,4 +17,4 @@ WORKDIR /tmp
 
 RUN apt-get clean
 
-CMD ["python3", "toxic-bert/main.py"]
+CMD ["python3", "src/toxic-bert/main.py"]
