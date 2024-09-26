@@ -25,6 +25,9 @@ RUN apt-get update && apt-get install -y \
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /opt/conda/lib/python3.11/site-packages /opt/conda/lib/python3.11/site-packages
 
+# Force numpy version in the final stage
+RUN pip uninstall -y numpy && pip install numpy==1.25.2
+
 # Check if the /root/.local/lib/python3.11/site-packages directory exists, and only copy if it does
 RUN if [ -d "/root/.local/lib/python3.11/site-packages" ]; then \
         echo "Copying /root/.local/lib/python3.11/site-packages..."; \
