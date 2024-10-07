@@ -90,8 +90,9 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
 
         if lang == '__label__eng_Latn':
             count += 1
+            truncated_text = plaintext[:512] if len(plaintext) > 512 else plaintext
             batch.append({
-                'text': plaintext,
+                'text': truncated_text,
                 'id': hit_id,
                 'crawled_from_instance': crawled_from_instance,
                 'instance': instance,
