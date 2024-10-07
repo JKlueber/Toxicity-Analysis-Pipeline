@@ -4,6 +4,7 @@ from elasticsearch_utils import execute_scan
 from text_processing import detect_language, extract_text_from_hit
 import json
 import os
+import time
 
 class Toxicity:
     def __init__(self, toxicity=0, severe_toxicity=0, obscene=0, threat=0, insult=0, identity_attack=0):
@@ -71,14 +72,15 @@ def load_toxicity_model():
     )
     
 
-def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, output_path='data/output/toxicity_results.json'):
+def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, num_of_res = 100000, output_path='data/output/toxicity_results.json'):
+    start_time = time.time()
+    
     toxicitys = []
     batch = []
 
-    it = execute_scan(filtered_search, es, index, size=10)
+    it = execute_scan(filtered_search, es, index, size=1000)
     count = 0
     for hit in it:
-        count += 1
         plaintext = extract_text_from_hit(hit)
         lang = detect_language(plaintext, lang_detector)
         hit_id = hit.get('_id')
@@ -87,6 +89,7 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
         is_local = hit['_source'].get('is_local')
 
         if lang == '__label__eng_Latn':
+            count += 1
             batch.append({
                 'text': plaintext,
                 'id': hit_id,
@@ -106,7 +109,7 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
                         'toxicity': toxicity.to_dict()
                     })
                 batch = []
-        if count > 5:
+        if count >= num_of_res:
             break
 
     if batch:
@@ -123,6 +126,9 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as json_file:
-        json.dump(toxicitys, json_file, indent=4) 
+        json.dump(toxicitys, json_file, indent=4)
 
-    return toxicitys
+    end_time = time.time()
+    elapsed_time = end_time - start_time 
+
+    return elapsed_time

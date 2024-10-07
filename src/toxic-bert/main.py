@@ -26,8 +26,13 @@ def main():
     batch_size = config['toxicity_analysis']['batch_size']
     index = config['elasticsearch']['index']
 
-    toxicitys = measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=2)
-    print(toxicitys)
+    num_of_res = 100000
+
+    time = measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size, num_of_res)
+    print(f"Time taken: {time:.2f} seconds")
+    print(f"Batch size: {batch_size}")
+    print(f"Number of results: {num_of_res}")
+
 
 if __name__ == "__main__":
     main()
