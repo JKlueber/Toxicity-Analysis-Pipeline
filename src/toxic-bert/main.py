@@ -28,10 +28,12 @@ def main():
 
     num_of_res = 100000
 
-    time = measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size, num_of_res)
+    time, cutted, false_lang = measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size, num_of_res)
     print(f"Time taken: {time:.2f} seconds")
     print(f"Batch size: {batch_size}")
     print(f"Number of results: {num_of_res}")
+    print(f"Number of cutted texts: {cutted}")
+    print(f"Number of texts with false language: {false_lang}")
 
 
 if __name__ == "__main__":
