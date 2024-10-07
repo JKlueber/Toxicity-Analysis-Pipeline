@@ -10,4 +10,5 @@ seaborn
 resiliparse
 pyyaml
 datasets
+nltk
 git+https://github.com/huggingface/transformers.git
