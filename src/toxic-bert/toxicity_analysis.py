@@ -81,6 +81,8 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
     
     it = execute_scan(filtered_search, es, index, size=1000)
     count = 0
+    cutted = 0
+    false_lang = 0
     
     for hit in it:
         plaintext = extract_text_from_hit(hit)
@@ -92,6 +94,8 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
 
         if lang == '__label__eng_Latn':
             count += 1
+            if len(plaintext) > 512:
+                cutted += 1
             truncated_text = plaintext[:512] if len(plaintext) > 512 else plaintext
             batch.append({
                 'text': truncated_text,
@@ -114,6 +118,8 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
                         'toxicity': toxicity.to_dict()
                     })
                 batch = []
+        else:
+            false_lang += 1
 
         if count >= num_of_res:
             break
@@ -137,5 +143,5 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
         json.dump(toxicitys, json_file, indent=4)
 
     elapsed_time = time.time() - start_time
-    return elapsed_time
+    return elapsed_time, cutted, false_lang
 
