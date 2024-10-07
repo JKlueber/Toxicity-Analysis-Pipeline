@@ -1,7 +1,7 @@
 import torch
 from transformers import pipeline
 from elasticsearch_utils import execute_scan
-from text_processing import detect_language, extract_text_from_hit
+from text_processing import detect_language, extract_text_from_hit, remove_stopwords
 import json
 import os
 import time
@@ -94,6 +94,8 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
 
         if lang == '__label__eng_Latn':
             count += 1
+            if len(plaintext) > 512:
+                plaintext = remove_stopwords(plaintext)
             if len(plaintext) > 512:
                 cutted += 1
             truncated_text = plaintext[:512] if len(plaintext) > 512 else plaintext
