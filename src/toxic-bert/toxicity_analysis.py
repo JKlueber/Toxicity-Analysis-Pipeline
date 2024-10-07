@@ -73,21 +73,15 @@ def load_toxicity_model():
     )
     
 
-import time
-import os
-import json
-from datasets import Dataset
-
 def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, num_of_res=100000, output_path='data/output/toxicity_results.json'):
     start_time = time.time()
-
+    
     toxicitys = []
-    texts = []
-    meta_data = []
-
+    batch = []
+    
     it = execute_scan(filtered_search, es, index, size=1000)
     count = 0
-
+    
     for hit in it:
         plaintext = extract_text_from_hit(hit)
         lang = detect_language(plaintext, lang_detector)
@@ -99,37 +93,45 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
         if lang == '__label__eng_Latn':
             count += 1
             truncated_text = plaintext[:512] if len(plaintext) > 512 else plaintext
-            texts.append(truncated_text)
-            meta_data.append({
+            batch.append({
+                'text': truncated_text,
                 'id': hit_id,
                 'crawled_from_instance': crawled_from_instance,
                 'instance': instance,
                 'is_local': is_local
             })
-            
+            if len(batch) == batch_size:
+                dataset = Dataset.from_dict({'text': [item['text'] for item in batch]})
+                predictions = toxic_bert(dataset['text'], batch_size=batch_size) 
+                
+                for item, prediction in zip(batch, predictions):
+                    toxicity = Toxicity.from_prediction([prediction])
+                    toxicitys.append({
+                        'id': item['id'],
+                        'crawled_from_instance': item['crawled_from_instance'],
+                        'instance': item['instance'],
+                        'is_local': item['is_local'],
+                        'toxicity': toxicity.to_dict()
+                    })
+                batch = []
+
         if count >= num_of_res:
             break
 
-    # If we have collected texts, we proceed to run the toxicity predictions
-    if texts:
-        # Use datasets.Dataset to handle the entire text batch
-        dataset = Dataset.from_dict({'text': texts})
-
-        # Use toxic_bert to predict toxicity on the entire dataset in batches
+    if batch:
+        dataset = Dataset.from_dict({'text': [item['text'] for item in batch]})
         predictions = toxic_bert(dataset['text'], batch_size=batch_size)
-
-        # Process the predictions and collect the results
-        for meta, prediction in zip(meta_data, predictions):
+        
+        for item, prediction in zip(batch, predictions):
             toxicity = Toxicity.from_prediction([prediction])
             toxicitys.append({
-                'id': meta['id'],
-                'crawled_from_instance': meta['crawled_from_instance'],
-                'instance': meta['instance'],
-                'is_local': meta['is_local'],
+                'id': item['id'],
+                'crawled_from_instance': item['crawled_from_instance'],
+                'instance': item['instance'],
+                'is_local': item['is_local'],
                 'toxicity': toxicity.to_dict()
             })
 
-    # Write the output to a JSON file
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as json_file:
         json.dump(toxicitys, json_file, indent=4)
