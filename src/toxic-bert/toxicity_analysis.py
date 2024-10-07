@@ -5,6 +5,7 @@ from text_processing import detect_language, extract_text_from_hit
 import json
 import os
 import time
+from datasets import Dataset
 
 class Toxicity:
     def __init__(self, toxicity=0, severe_toxicity=0, obscene=0, threat=0, insult=0, identity_attack=0):
@@ -72,14 +73,15 @@ def load_toxicity_model():
     )
     
 
-def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, num_of_res = 100000, output_path='data/output/toxicity_results.json'):
+def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, num_of_res=100000, output_path='data/output/toxicity_results.json'):
     start_time = time.time()
     
     toxicitys = []
     batch = []
-
+    
     it = execute_scan(filtered_search, es, index, size=1000)
     count = 0
+    
     for hit in it:
         plaintext = extract_text_from_hit(hit)
         lang = detect_language(plaintext, lang_detector)
@@ -99,7 +101,9 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
                 'is_local': is_local
             })
             if len(batch) == batch_size:
-                predictions = toxic_bert([item['text'] for item in batch]) 
+                dataset = Dataset.from_dict({'text': [item['text'] for item in batch]})
+                predictions = toxic_bert(dataset['text'], batch_size=batch_size) 
+                
                 for item, prediction in zip(batch, predictions):
                     toxicity = Toxicity.from_prediction([prediction])
                     toxicitys.append({
@@ -110,11 +114,14 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
                         'toxicity': toxicity.to_dict()
                     })
                 batch = []
+
         if count >= num_of_res:
             break
 
     if batch:
-        predictions = toxic_bert([item['text'] for item in batch])
+        dataset = Dataset.from_dict({'text': [item['text'] for item in batch]})
+        predictions = toxic_bert(dataset['text'], batch_size=batch_size)
+        
         for item, prediction in zip(batch, predictions):
             toxicity = Toxicity.from_prediction([prediction])
             toxicitys.append({
@@ -129,7 +136,6 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
     with open(output_path, 'w') as json_file:
         json.dump(toxicitys, json_file, indent=4)
 
-    end_time = time.time()
-    elapsed_time = end_time - start_time 
-
+    elapsed_time = time.time() - start_time
     return elapsed_time
+
