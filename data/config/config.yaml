@@ -11,4 +11,4 @@ date_range:
   before: "2024-02-22T00:00:00"
 
 toxicity_analysis:
-  batch_size: 128
+  batch_size: 256
