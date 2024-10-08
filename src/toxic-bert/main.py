@@ -28,11 +28,13 @@ def main():
 
     num_of_res = 100000
 
-    time, cutted, false_lang = measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size, num_of_res)
+    time, cutted_long, cutted_middle, cutted_short, false_lang = measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size, num_of_res)
     print(f"Time taken: {time} seconds")
     print(f"Batch size: {batch_size}")
     print(f"Number of results: {num_of_res}")
-    print(f"Number of cutted texts: {cutted}")
+    print(f"Number of cutted long texts: {cutted_long}")
+    print(f"Number of cutted middle texts: {cutted_middle}")
+    print(f"Number of cutted short texts: {cutted_short}")
     print(f"Number of texts with false language: {false_lang}")
 
 
