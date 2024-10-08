@@ -1,7 +1,7 @@
 import torch
 from transformers import pipeline
 from elasticsearch_utils import execute_scan
-from text_processing import detect_language, extract_text_from_hit, remove_stopwords
+from text_processing import detect_language, extract_text_from_hit
 import json
 import os
 import time
@@ -81,9 +81,7 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
     
     it = execute_scan(filtered_search, es, index, size=1000)
     count = 0
-    cutted_long = 0
-    cutted_middle = 0
-    cutted_short = 0
+    cutted = 0
     false_lang = 0
     
     for hit in it:
@@ -97,13 +95,7 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
         if lang == '__label__eng_Latn':
             count += 1
             if len(plaintext) > 512:
-                plaintext = remove_stopwords(plaintext)
-            if len(plaintext) > 1024:
-                cutted_long += 1
-            elif len(plaintext) > 700:
-                cutted_middle += 1
-            elif len(plaintext) > 512:
-                cutted_short += 1
+                cutted += 1
             truncated_text = plaintext[:512] if len(plaintext) > 512 else plaintext
             batch.append({
                 'text': truncated_text,
@@ -151,5 +143,5 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
         json.dump(toxicitys, json_file, indent=4)
 
     elapsed_time = time.time() - start_time
-    return elapsed_time, cutted_long, cutted_middle, cutted_short, false_lang
+    return elapsed_time, false_lang
 
