@@ -6,6 +6,7 @@ import json
 import os
 import time
 from datasets import Dataset
+from ray import remote, get
 
 class Toxicity:
     def __init__(self, toxicity=0, severe_toxicity=0, obscene=0, threat=0, insult=0, identity_attack=0):
@@ -73,6 +74,12 @@ def load_toxicity_model():
     )
     
 
+@remote
+def process_batch(batch, toxic_bert):
+    dataset = Dataset.from_dict({'text': [item['text'] for item in batch]})
+    predictions = toxic_bert(dataset['text'], batch_size=len(batch))
+    return predictions
+
 def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, num_of_res=100000, output_path='data/output/toxicity_results.json'):
     start_time = time.time()
     
@@ -83,6 +90,9 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
     count = 0
     cutted = 0
     false_lang = 0
+    
+    # Store futures for batch processing
+    futures = []
     
     for hit in it:
         plaintext = extract_text_from_hit(hit)
@@ -105,18 +115,8 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
                 'is_local': is_local
             })
             if len(batch) == batch_size:
-                dataset = Dataset.from_dict({'text': [item['text'] for item in batch]})
-                predictions = toxic_bert(dataset['text'], batch_size=batch_size) 
-                
-                for item, prediction in zip(batch, predictions):
-                    toxicity = Toxicity.from_prediction([prediction])
-                    toxicitys.append({
-                        'id': item['id'],
-                        'crawled_from_instance': item['crawled_from_instance'],
-                        'instance': item['instance'],
-                        'is_local': item['is_local'],
-                        'toxicity': toxicity.to_dict()
-                    })
+                future = process_batch.remote(batch, toxic_bert)
+                futures.append(future)
                 batch = []
         else:
             false_lang += 1
@@ -125,11 +125,16 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
             break
 
     if batch:
-        dataset = Dataset.from_dict({'text': [item['text'] for item in batch]})
-        predictions = toxic_bert(dataset['text'], batch_size=batch_size)
-        
-        for item, prediction in zip(batch, predictions):
-            toxicity = Toxicity.from_prediction([prediction])
+        future = process_batch.remote(batch, toxic_bert)
+        futures.append(future)
+
+    # Collect results from all futures
+    predictions = get(futures)
+    
+    # Process the predictions and build your toxicity results list
+    for batch, prediction in zip(futures, predictions):
+        for item, pred in zip(batch, prediction):
+            toxicity = Toxicity.from_prediction([pred])
             toxicitys.append({
                 'id': item['id'],
                 'crawled_from_instance': item['crawled_from_instance'],
@@ -144,4 +149,3 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
 
     elapsed_time = time.time() - start_time
     return elapsed_time, false_lang
-

@@ -10,4 +10,5 @@ seaborn
 resiliparse
 pyyaml
 datasets
+ray[default,data]
 git+https://github.com/huggingface/transformers.git
