@@ -1,7 +1,6 @@
 from resiliparse.extract.html2text import extract_plain_text
 import fasttext
 from huggingface_hub import hf_hub_download
-from pathlib import Path
 
 def load_language_detector():
     model_path = hf_hub_download(repo_id="facebook/fasttext-language-identification", filename="model.bin")

@@ -1,10 +1,8 @@
-import torch
 from transformers import pipeline
 from elasticsearch_utils import execute_scan
 from text_processing import detect_language, extract_text_from_hit
-import json
-import os
 import time
+import torch
 from datasets import Dataset
 from ray import remote, get
 
@@ -80,18 +78,18 @@ def process_batch(batch, toxic_bert):
     predictions = toxic_bert(dataset['text'], batch_size=len(batch))
     return predictions
 
-def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, num_of_res=100000, output_path='data/output/toxicity_results.json'):
+def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, num_of_res=100000):
     start_time = time.time()
     
     toxicitys = []
     batch = []
+    batch_data = []
     
     it = execute_scan(filtered_search, es, index, size=1000)
     count = 0
     cutted = 0
     false_lang = 0
     
-    # Store futures for batch processing
     futures = []
     
     for hit in it:
@@ -117,6 +115,7 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
             if len(batch) == batch_size:
                 future = process_batch.remote(batch, toxic_bert)
                 futures.append(future)
+                batch_data.append(batch)
                 batch = []
         else:
             false_lang += 1
@@ -127,13 +126,12 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
     if batch:
         future = process_batch.remote(batch, toxic_bert)
         futures.append(future)
+        batch_data.append(batch) 
 
-    # Collect results from all futures
     predictions = get(futures)
-    
-    # Process the predictions and build your toxicity results list
-    for batch, prediction in zip(futures, predictions):
-        for item, pred in zip(batch, prediction):
+
+    for batch, prediction in zip(batch_data, predictions): 
+        for item, pred in zip(batch, prediction): 
             toxicity = Toxicity.from_prediction([pred])
             toxicitys.append({
                 'id': item['id'],
@@ -143,9 +141,5 @@ def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batc
                 'toxicity': toxicity.to_dict()
             })
 
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as json_file:
-        json.dump(toxicitys, json_file, indent=4)
-
     elapsed_time = time.time() - start_time
-    return elapsed_time, false_lang
+    return elapsed_time, cutted, false_lang, toxicitys
