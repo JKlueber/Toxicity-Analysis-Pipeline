@@ -1,10 +1,8 @@
 from transformers import pipeline
-from elasticsearch_utils import execute_scan
 from text_processing import detect_language, extract_text_from_hit
-import time
 import torch
-from datasets import Dataset
-from ray import remote, get
+from typing import Dict
+import numpy as np
 
 class Toxicity:
     def __init__(self, toxicity=0, severe_toxicity=0, obscene=0, threat=0, insult=0, identity_attack=0):
@@ -61,85 +59,41 @@ class Toxicity:
         }
 
 def load_toxicity_model():
-    device = 0 if torch.cuda.is_available() else -1
+    # device = 0 if torch.cuda.is_available() else -1
 
     return pipeline(
         'text-classification', 
         model='unitary/toxic-bert', 
         tokenizer='bert-base-uncased', 
         top_k=None, 
-        device=device 
     )
+
+class ToxicityClassifier:
+    def __init__(self, classifier, lang_detector):
+        self.classifier = classifier
+        self.lang_detector = lang_detector
     
+    def __call__(self, batch: Dict[str, np.ndarray]):
+        toxicity_results = []
+        texts = []
+        for item in batch:
+            text = extract_text_from_hit(item)
+            lang = detect_language(text, self.lang_detector)
+            if lang == '__label__eng_Latn':
+                truncated_text = text[:512] if len(text) > 512 else text
+                texts.append(truncated_text)
 
-@remote
-def process_batch(batch, toxic_bert):
-    dataset = Dataset.from_dict({'text': [item['text'] for item in batch]})
-    predictions = toxic_bert(dataset['text'], batch_size=len(batch))
-    return predictions
+        if texts:
+            predictions = self.classifier(texts)
+            for item, prediction in zip(batch, predictions):
+                toxicity = Toxicity.from_prediction([prediction])
+                toxicity_results.append({
+                    'id': item.get('_id'),
+                    'crawled_from_instance': item['_source'].get('crawled_from_instance'),
+                    'instance': item['_source'].get('instance'),
+                    'is_local': item['_source'].get('is_local'),
+                    'toxicity': toxicity.to_dict()
+                })
 
-def measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size=128, num_of_res=100000):
-    start_time = time.time()
-    
-    toxicitys = []
-    batch = []
-    batch_data = []
-    
-    it = execute_scan(filtered_search, es, index, size=1000)
-    count = 0
-    cutted = 0
-    false_lang = 0
-    
-    futures = []
-    
-    for hit in it:
-        plaintext = extract_text_from_hit(hit)
-        lang = detect_language(plaintext, lang_detector)
-        hit_id = hit.get('_id')
-        crawled_from_instance = hit['_source'].get('crawled_from_instance')
-        instance = hit['_source'].get('instance')
-        is_local = hit['_source'].get('is_local')
+        return toxicity_results
 
-        if lang == '__label__eng_Latn':
-            count += 1
-            if len(plaintext) > 512:
-                cutted += 1
-            truncated_text = plaintext[:512] if len(plaintext) > 512 else plaintext
-            batch.append({
-                'text': truncated_text,
-                'id': hit_id,
-                'crawled_from_instance': crawled_from_instance,
-                'instance': instance,
-                'is_local': is_local
-            })
-            if len(batch) == batch_size:
-                future = process_batch.remote(batch, toxic_bert)
-                futures.append(future)
-                batch_data.append(batch)
-                batch = []
-        else:
-            false_lang += 1
-
-        if count >= num_of_res:
-            break
-
-    if batch:
-        future = process_batch.remote(batch, toxic_bert)
-        futures.append(future)
-        batch_data.append(batch) 
-
-    predictions = get(futures)
-
-    for batch, prediction in zip(batch_data, predictions): 
-        for item, pred in zip(batch, prediction): 
-            toxicity = Toxicity.from_prediction([pred])
-            toxicitys.append({
-                'id': item['id'],
-                'crawled_from_instance': item['crawled_from_instance'],
-                'instance': item['instance'],
-                'is_local': item['is_local'],
-                'toxicity': toxicity.to_dict()
-            })
-
-    elapsed_time = time.time() - start_time
-    return elapsed_time, cutted, false_lang, toxicitys
