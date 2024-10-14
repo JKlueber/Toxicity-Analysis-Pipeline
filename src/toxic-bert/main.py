@@ -3,11 +3,15 @@ from config_loader import load_config
 from elasticsearch_utils import connect_to_elastic, prepare_search_query
 from text_processing import load_language_detector
 from toxicity_analysis import load_toxicity_model, measure_toxicity
-from ray import init, remote, get
 from elasticsearch_dsl.query import Term
+import pandas as pd
+import os
 
-# Initialize Ray (and connect to cluster).
-init()
+import ray
+from ray import init, remote, get
+from ray.data.datasource import FilenameProvider
+
+ray.init(logging_level="DEBUG")
 
 @remote
 def process_toxicity(config_path):
@@ -24,28 +28,35 @@ def process_toxicity(config_path):
 
     batch_size = config['toxicity_analysis']['batch_size']
     index = config['elasticsearch']['index']
-    num_of_res = 100000
+    num_of_res = 10
 
-    time, cutted, false_lang = measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size, num_of_res)
+    time, cutted, false_lang, toxicitys = measure_toxicity(filtered_search, es, index, lang_detector, toxic_bert, batch_size, num_of_res)
 
     return {
         "time": time,
         "batch_size": batch_size,
         "num_of_results": num_of_res,
         "cutted": cutted,
-        "false_language": false_lang
+        "false_language": false_lang,
+        "toxicitys": toxicitys
     }
 
 def main():
     config_path = Path("data/config/config.yaml")
     
-    # Launch the remote task
     future = process_toxicity.remote(config_path)
 
-    # Wait for the result
     result = get(future)
+    toxicitys = result['toxicitys']
 
-    # Print results
+    df = pd.DataFrame(toxicitys)
+    ds = ray.data.from_pandas([df])
+
+    ds.write_json(
+    "local:///mnt/ceph/storage/data-tmp/2024/po87xox/toxicity",
+    ray_remote_args={"resources": {"num_cpus": 1}, "scheduling_strategy": "DEFAULT"}
+    )
+
     print(f"Time taken: {result['time']} seconds")
     print(f"Batch size: {result['batch_size']}")
     print(f"Number of results: {result['num_of_results']}")
