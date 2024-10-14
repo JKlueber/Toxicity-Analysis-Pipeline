@@ -1,5 +1,6 @@
 from transformers import pipeline
 from text_processing import detect_language, extract_text_from_hit
+from text_processing import load_language_detector
 import torch
 from typing import Dict
 import numpy as np
@@ -69,11 +70,19 @@ def load_toxicity_model():
     )
 
 class ToxicityClassifier:
-    def __init__(self, classifier, lang_detector):
-        self.classifier = classifier
-        self.lang_detector = lang_detector
+    def __init__(self):
+        self.classifier = None
+        self.lang_detector = None
+
+    def initialize(self):
+        if self.classifier is None:
+            self.classifier = load_toxicity_model()
+        if self.lang_detector is None:
+            self.lang_detector = load_language_detector()
     
     def __call__(self, batch: Dict[str, np.ndarray]):
+        self.initialize()
+        
         toxicity_results = []
         texts = []
         for item in batch:
