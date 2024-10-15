@@ -15,8 +15,7 @@ def get_es_source(config):
                 config['elasticsearch']['user'], 
                 password,
             ),
-            timeout=120,
-            max_concurrent_searches=40
+            timeout=120
         ),
         query={
             "bool": {

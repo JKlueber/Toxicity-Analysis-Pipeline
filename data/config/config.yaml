@@ -3,7 +3,7 @@ elasticsearch:
   port: 9200
   user: "po87xox"
   password_file: "data/passwords/webis-elasticsearch.txt"
-  index: "corpus_mastodon_statuses*"
+  index: "corpus_mastodon_statuses_2024_02"
   language: "en"
 
 date_range:
@@ -11,4 +11,4 @@ date_range:
   before: "2024-02-22T00:00:00"
 
 toxicity_analysis:
-  batch_size: 128
+  batch_size: 10

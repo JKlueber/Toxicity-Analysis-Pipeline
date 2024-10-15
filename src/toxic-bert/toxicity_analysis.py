@@ -82,27 +82,36 @@ class ToxicityClassifier:
     
     def __call__(self, batch: Dict[str, np.ndarray]):
         self.initialize()
-        
         toxicity_results = []
         texts = []
+
         for item in batch:
-            text = extract_text_from_hit(item)
-            lang = detect_language(text, self.lang_detector)
-            if lang == '__label__eng_Latn':
-                truncated_text = text[:512] if len(text) > 512 else text
-                texts.append(truncated_text)
+            try:
+                text = extract_text_from_hit(item)
+                lang = detect_language(text, self.lang_detector)
+
+                if lang == '__label__eng_Latn':
+                    truncated_text = text[:512] if len(text) > 512 else text
+                    texts.append(truncated_text)
+            except Exception as e:
+                print(f"Error processing item {item['_source'].get('_id', 'unknown')}: {e}")
+                continue 
 
         if texts:
-            predictions = self.classifier(texts)
-            for item, prediction in zip(batch, predictions):
-                toxicity = Toxicity.from_prediction([prediction])
-                toxicity_results.append({
-                    'id': item.get('_id'),
-                    'crawled_from_instance': item['_source'].get('crawled_from_instance'),
-                    'instance': item['_source'].get('instance'),
-                    'is_local': item['_source'].get('is_local'),
-                    'toxicity': toxicity.to_dict()
-                })
+            try:
+                predictions = self.classifier(texts)
+                for item, prediction in zip(batch, predictions):
+                    toxicity = Toxicity.from_prediction([prediction])
+                    toxicity_results.append({
+                        'id': item.get('_id'),
+                        'crawled_from_instance': item['_source'].get('crawled_from_instance'),
+                        'instance': item['_source'].get('instance'),
+                        'is_local': item['_source'].get('is_local'),
+                        'toxicity': toxicity.to_dict()
+                    })
+            except Exception as e:
+                print(f"Error during classification: {e}")
+                return []
 
         return toxicity_results
 
