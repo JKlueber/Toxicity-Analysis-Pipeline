@@ -7,7 +7,7 @@ elasticsearch:
   language: "en"
 
 date_range:
-  after: "2024-02-21T00:00:00"
+  after: "2024-01-01T00:00:00"
   before: "2024-02-22T00:00:00"
 
 toxicity_analysis:
