@@ -4,6 +4,10 @@ from text_processing import load_language_detector
 import torch
 from typing import Dict
 import numpy as np
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Toxicity:
     def __init__(self, toxicity=0, severe_toxicity=0, obscene=0, threat=0, insult=0, identity_attack=0):
@@ -81,6 +85,7 @@ class ToxicityClassifier:
             self.lang_detector = load_language_detector()
     
     def __call__(self, batch: Dict[str, np.ndarray]):
+        logger.info("Processing batch...")
         self.initialize()
         toxicity_results = []
         texts = []
@@ -109,6 +114,7 @@ class ToxicityClassifier:
                         'is_local': item['_source'].get('is_local'),
                         'toxicity': toxicity.to_dict()
                     })
+                logger.info(f"Toxicity results: {toxicity_results[0]}")
             except Exception as e:
                 print(f"Error during classification: {e}")
                 return []
