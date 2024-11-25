@@ -9,6 +9,8 @@ ipykernel~=6.29
 seaborn
 resiliparse
 pyyaml
+pyarrow
+pyarrow-stubs
 datasets
 ray[default,data]
 python-dotenv
