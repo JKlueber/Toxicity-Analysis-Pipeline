@@ -1,6 +1,6 @@
 from transformers import pipeline
-from .text_processing import detect_language, extract_text_from_hit
-from .text_processing import load_language_detector
+from src.toxic_bert.text_processing import detect_language, extract_text_from_hit
+from src.toxic_bert.text_processing import load_language_detector
 import torch
 from typing import Dict
 import numpy as np

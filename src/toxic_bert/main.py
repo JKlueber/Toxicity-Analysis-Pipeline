@@ -1,7 +1,7 @@
 from pathlib import Path
-from .config_loader import load_config
-from .elasticsearch_utils import get_es_source
-from .toxicity_analysis import ToxicityClassifier
+from src.toxic_bert.config_loader import load_config
+from src.toxic_bert.elasticsearch_utils import get_es_source
+from src.toxic_bert.toxicity_analysis import ToxicityClassifier
 
 from ray import init
 from ray.data import read_datasource, DataContext
