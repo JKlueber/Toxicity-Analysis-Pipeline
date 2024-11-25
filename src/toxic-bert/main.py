@@ -19,13 +19,13 @@ def main():
     es_source = get_es_source(config)
 
     print("Reading data from Elasticsearch...")
-    result = read_datasource(es_source, concurrency=40) \
+    read_datasource(es_source, concurrency=20) \
     .map_batches(
-        ToxicityClassifier(),
+        ToxicityClassifier,
         concurrency=100,
         num_gpus=0,  
-        batch_size=batch_size) #\
-    #.write_json("local:///mnt/ceph/storage/data-tmp/2024/po87xox/toxicity")
+        batch_size=batch_size) \
+    .write_json("local://home/julian/info/Uni/thesis/toxic-bert/data/output")#.write_json("local://mnt/ceph/storage/data-tmp/2024/po87xox/toxicity")
     print("Done!")
 
 if __name__ == "__main__":
