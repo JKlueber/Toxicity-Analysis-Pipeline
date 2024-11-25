@@ -26,6 +26,10 @@ def main():
             concurrency=10,
             override_num_blocks=50#0,
         )
+        .rename_columns({
+            "_id": "id",
+        })
+        # TODO: Map batches to extract text.
         # TODO: Map batches to add language tag.
         # .map_batches(
         #     detect_language,
