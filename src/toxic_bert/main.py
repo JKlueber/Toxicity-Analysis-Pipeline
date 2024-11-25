@@ -37,7 +37,7 @@ def main():
             concurrency=10,
             num_cpus=0.25,
             num_gpus=0,
-            # batch_size=batch_size,
+            batch_size=batch_size,
             batch_format="pandas",
         )
         .write_json("local:///mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity")
