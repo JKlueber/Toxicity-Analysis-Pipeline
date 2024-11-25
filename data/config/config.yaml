@@ -8,7 +8,7 @@ elasticsearch:
 
 date_range:
   after: "2024-01-01T00:00:00"
-  before: "2024-02-22T00:00:00"
+  before: "2024-01-01T01:00:00"
 
 toxicity_analysis:
-  batch_size: 10
+  batch_size: 128
