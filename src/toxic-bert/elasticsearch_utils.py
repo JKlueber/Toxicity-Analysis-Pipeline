@@ -1,11 +1,12 @@
-from pathlib import Path
-
 from ray_elasticsearch import ElasticsearchDatasource
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+elastic_password = os.getenv('ELASTICSEARCH_PASSWORD')
 
 def get_es_source(config):
-    password_file = Path(config['elasticsearch']['password_file']).expanduser()
-    with password_file.open("r") as f:
-        password = f.readline().strip("\n")
         
     return ElasticsearchDatasource(
         index=config['elasticsearch']['index'],
@@ -13,7 +14,7 @@ def get_es_source(config):
             hosts=config['elasticsearch']['host'],
             http_auth=(
                 config['elasticsearch']['user'], 
-                password,
+                elastic_password,
             ),
             timeout=120
         ),
