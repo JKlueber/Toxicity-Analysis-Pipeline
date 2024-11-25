@@ -1,6 +1,7 @@
 from ray_elasticsearch import ElasticsearchDatasource
 from dotenv import load_dotenv
 import os
+from pyarrow import schema, field, string, struct, bool_
 
 load_dotenv()
 
@@ -43,4 +44,13 @@ def get_es_source(config):
                 ]
             }
         },
+        schema=schema([
+            field('_id', string()),
+            field('_source', struct([
+                field("content", string()),
+                field("crawled_from_instance", string()),
+                field("instance", string()),
+                field("is_local", bool_()),
+            ])),
+        ]),
     )
