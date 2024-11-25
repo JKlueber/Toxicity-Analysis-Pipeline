@@ -1,6 +1,7 @@
 from pathlib import Path
 from src.toxic_bert.config_loader import load_config
 from src.toxic_bert.elasticsearch_utils import get_es_source
+from src.toxic_bert.language import detect_language
 from src.toxic_bert.toxicity_analysis import ToxicityClassifier
 
 from ray import init
@@ -25,12 +26,18 @@ def main():
             concurrency=10,
             override_num_blocks=50#0,
         )
+        # TODO: Map batches to add language tag.
+        # .map_batches(
+        #     detect_language,
+        #     batch_format="pandas",
+        # )
+        # TODO: Filter by language.
         .map_batches(
             ToxicityClassifier(),
             concurrency=10,
             num_cpus=0.25,
             num_gpus=0,
-            batch_size=batch_size,
+            # batch_size=batch_size,
             batch_format="pandas",
         )
         .write_json("local:///mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity")
