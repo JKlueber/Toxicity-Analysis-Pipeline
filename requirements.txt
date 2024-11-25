@@ -11,4 +11,5 @@ resiliparse
 pyyaml
 datasets
 ray[default,data]
+python-dotenv
 git+https://github.com/huggingface/transformers.git
