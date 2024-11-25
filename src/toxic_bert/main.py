@@ -19,12 +19,18 @@ def main():
     es_source = get_es_source(config)
 
     print("Reading data from Elasticsearch...")
-    read_datasource(es_source, concurrency=20, override_num_blocks=1000) \
+    read_datasource(
+        datasource=es_source,
+        concurrency=10,
+        override_num_blocks=500,
+    ) \
     .map_batches(
         ToxicityClassifier(),
-        concurrency=100,
-        num_gpus=0,  
-        batch_size=batch_size) \
+        concurrency=10,
+        num_cpus=0.25,
+        num_gpus=0,
+        batch_size=batch_size,
+    ) \
     .write_json("local://mnt/ceph/storage/data-tmp/2024/po87xox/toxicity")
     print("Done!")
 
