@@ -33,7 +33,7 @@ def main():
             batch_size=batch_size,
             batch_format="pandas",
         )
-        .write_json("local:///mnt/ceph/storage/data-tmp/2024/po87xox/toxicity")
+        .write_json("local:///mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity")
     )
     print("Done!")
 
