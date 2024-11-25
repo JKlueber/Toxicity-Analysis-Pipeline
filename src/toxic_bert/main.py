@@ -19,7 +19,7 @@ def main():
     es_source = get_es_source(config)
 
     print("Reading data from Elasticsearch...")
-    read_datasource(es_source, concurrency=20) \
+    read_datasource(es_source, concurrency=20, override_num_blocks=1000) \
     .map_batches(
         ToxicityClassifier(),
         concurrency=100,
