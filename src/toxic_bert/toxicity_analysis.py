@@ -1,14 +1,6 @@
 from transformers import pipeline
-from src.toxic_bert.text_processing import detect_language, extract_text_from_hit
-from src.toxic_bert.text_processing import load_language_detector
 import torch
-from typing import Dict
-import numpy as np
 from pandas import DataFrame
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 class Toxicity:
     def __init__(self, toxicity=0, severe_toxicity=0, obscene=0, threat=0, insult=0, identity_attack=0):
@@ -79,34 +71,17 @@ def load_toxicity_model():
 class ToxicityClassifier:
     def __init__(self):
         self.classifier = None
-        self.lang_detector = None
 
     def initialize(self):
         if self.classifier is None:
             self.classifier = load_toxicity_model()
-        if self.lang_detector is None:
-            self.lang_detector = load_language_detector()
     
     def __call__(self, batch: DataFrame) -> DataFrame:
-        logger.info("Processing batch...")
         self.initialize()
 
-        # Load post texts.
-        texts = [
-            extract_text_from_hit(item)
-            for _, item in batch.iterrows()
-        ]
-        
-
-        toxicity_results = []
-        if texts:
-            predictions = self.classifier(texts)
-            for prediction in predictions:
-                toxicity = Toxicity.from_prediction([prediction])
-                toxicity_results.append(toxicity.to_dict())
-            logger.info(f"Toxicity results: {toxicity_results[0]}")
-
-        batch["toxiticity"] = toxicity_results
+        batch["toxicity"] = batch["plaintext"].apply(
+            lambda plaintext: Toxicity.from_prediction(self.classifier(plaintext)).to_dict()
+        )
 
         return batch
 
