@@ -23,39 +23,57 @@ def main():
     (
         read_datasource(
             datasource=es_source,
-            concurrency=10,
-            override_num_blocks=50#0,
+            concurrency=100,
+            override_num_blocks=1000,
+            ray_remote_args=dict(
+                num_cpus=0.01,
+            ),
         )
-        # .rename_columns({
-        #     "_source.content": "content",
-        #     "_source.crawled_from_instance": "crawled_from_instance",
-        #     "_source.instance": "instance",
-        #     "_source.is_local": "is_local",
-        # })
-        # .map_batches(
-        #     fn=extract_text,
-        #     batch_format="pandas",
-        # )
-        # .map_batches(
-        #     LanguageDetector(),
-        #     concurrency=10,
-        #     num_cpus=0.25,
-        #     num_gpus=0,
-        #     # batch_size=batch_size,
-        #     batch_format="pandas",
-        # )
-        # .filter(
-        #     lambda batch: batch['language'] == '__label__eng_Latn'
-        # )
-        # .map_batches(
-        #     ToxicityClassifier(),
-        #     concurrency=10,
-        #     num_cpus=0.25,
-        #     num_gpus=0,
-        #     # batch_size=batch_size,
-        #     batch_format="pandas",
-        # )
-        .write_json("local:///mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity")
+        # Rename the columns.
+        .rename_columns(
+            names={
+                "_id": "id",
+                "_source.content": "content",
+                "_source.crawled_from_instance": "crawled_from_instance",
+                "_source.instance": "instance",
+                "_source.is_local": "is_local",
+            }, 
+            num_cpus=0.01,
+        )
+        # Map batches to extract text.
+        .map_batches(
+            fn=extract_text,
+            num_cpus=0.01,
+            batch_format="pandas",
+        )
+        # Map batches to add language tag.
+        .map_batches(
+            LanguageDetector(),
+            concurrency=100,
+            num_cpus=0.25,
+            num_gpus=0,
+            batch_format="pandas",
+        )
+        # Filter for English text.
+        .filter(
+            lambda batch: batch['language'] == '__label__eng_Latn'
+        )
+        # Classify toxiticity in batches.
+        .map_batches(
+            ToxicityClassifier(),
+            concurrency=10,
+            num_cpus=0.25,
+            num_gpus=0,
+            batch_size=32,
+            batch_format="pandas",
+        )
+        .write_json(
+            path="/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity",
+            concurrency=10,
+            ray_remote_args=dict(
+                num_cpus=0.1,
+            ),
+        )
     )
 
 if __name__ == "__main__":

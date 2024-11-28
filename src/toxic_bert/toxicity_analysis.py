@@ -66,6 +66,7 @@ def load_toxicity_model():
         top_k=None,
         truncation=True,
         padding=True,
+        # TODO: Use GPU here with `device=` if available.
     )
 
 class ToxicityClassifier:
