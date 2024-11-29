@@ -1,25 +1,26 @@
-from pandas import DataFrame
-import fasttext
+from functools import cached_property
+
+from fasttext import load_model
+from fasttext.FastText import _FastText
 from huggingface_hub import hf_hub_download
+from pandas import DataFrame
 
-def load_language_detector():
-    model_path = hf_hub_download(repo_id="facebook/fasttext-language-identification", filename="model.bin")
-    return fasttext.load_model(str(model_path))
-
-def detect_language(plaintext, lang_detector):
-    return lang_detector.predict(plaintext)[0][0]
 
 class LanguageDetector:
-    def __init__(self):
-        self.lang_detector = None
 
-    def initialize(self):
-        if self.lang_detector is None:
-            self.lang_detector = load_language_detector()
+    @cached_property
+    def _lang_detector(self) -> _FastText:
+        model_path = hf_hub_download(
+            repo_id="facebook/fasttext-language-identification",
+            cache_dir="/tmp/fasttext",
+            filename="model.bin",
+        )
+        return load_model(model_path)
 
     def __call__(self, batch: DataFrame) -> DataFrame:
-        self.initialize()
-        batch['language'] = batch['plaintext'].apply(
-            lambda plaintext: detect_language(plaintext, lang_detector=self.lang_detector)
+        multi_labels, _ = self._lang_detector.predict(
+            [text.replace("\n", " ") for text in batch["plaintext"]]
         )
+        batch["language"] = [labels[0] for labels in multi_labels]
+        print(batch)
         return batch
