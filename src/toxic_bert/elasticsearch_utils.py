@@ -1,7 +1,7 @@
 from ray_elasticsearch import ElasticsearchDatasource
 from dotenv import load_dotenv
 import os
-from pyarrow import schema, field, string, struct, bool_
+from pyarrow import schema, field, string, bool_
 
 load_dotenv()
 
@@ -11,14 +11,12 @@ def get_es_source(config):
         
     return ElasticsearchDatasource(
         index=config['elasticsearch']['index'],
-        client_kwargs=dict(
-            hosts=config['elasticsearch']['host'],
-            http_auth=(
-                config['elasticsearch']['user'], 
-                elastic_password,
-            ),
-            timeout=120
+        hosts=config['elasticsearch']['host'],
+        http_auth=(
+            config['elasticsearch']['user'], 
+            elastic_password,
         ),
+        timeout=120,
         query={
             "bool": {
                 "filter": [
@@ -46,11 +44,9 @@ def get_es_source(config):
         },
         schema=schema([
             field('_id', string()),
-            field('_source', struct([
-                field("content", string()),
-                field("crawled_from_instance", string()),
-                field("instance", string()),
-                field("is_local", bool_()),
-            ])),
+            field("content", string()),
+            field("crawled_from_instance", string()),
+            field("instance", string()),
+            field("is_local", bool_()),
         ]),
     )
