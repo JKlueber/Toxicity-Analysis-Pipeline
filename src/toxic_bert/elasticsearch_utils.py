@@ -33,11 +33,6 @@ def get_es_source(config):
                     "term": {
                         "language": config['elasticsearch']['language']
                     }
-                    },
-                    {
-                    "term": {
-                        "instance": "pawoo.net"
-                    }
                     }
                 ]
             }
