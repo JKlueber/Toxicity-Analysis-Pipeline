@@ -15,4 +15,4 @@ datasets
 ray[default,data]
 python-dotenv
 transformers
-ray-elasticsearch~=0.2.4
+ray-elasticsearch~=1.0
