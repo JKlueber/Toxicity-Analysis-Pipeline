@@ -22,5 +22,4 @@ class LanguageDetector:
             [text.replace("\n", " ") for text in batch["plaintext"]]
         )
         batch["language"] = [labels[0] for labels in multi_labels]
-        print(batch)
         return batch
