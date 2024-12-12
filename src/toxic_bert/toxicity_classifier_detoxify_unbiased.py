@@ -6,14 +6,14 @@ from pandas import DataFrame
 from transformers import pipeline, Pipeline
 
 
-class ToxicityClassifier:
+class ToxicityClassifierDetoxifyUnbiased:
 
     @cached_property
     def _pipeline(self) -> Pipeline:
         return pipeline(
             "text-classification",
-            model="unitary/toxic-bert",
-            tokenizer="bert-base-uncased",
+            model="unitary/unbiased-toxic-roberta",
+            tokenizer="roberta-base",
             top_k=None,  # all labels
             truncation=True,
             padding=True,
@@ -35,12 +35,13 @@ class ToxicityClassifier:
 
         # Store each label's scores into separate columns.
         labels_to_columns = {
-            "toxic": "toxicity",
-            "severe_toxic": "severe_toxicity",
+            "toxicity": "toxicity",
+            "severe_toxicity": "severe_toxicity",
             "obscene": "obscenity",
             "threat": "threat",
             "insult": "insult",
-            "identity_hate": "identity_attack",
+            "identity_attack": "identity_attack",
+            "sexual_explicit": "sexually_explicit",
         }
         for label, column in labels_to_columns.items():
             batch[column] = [
