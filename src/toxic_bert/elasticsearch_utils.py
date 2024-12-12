@@ -5,7 +5,7 @@ from pyarrow import schema, field, string, bool_
 
 load_dotenv()
 
-elastic_password = os.getenv('ELASTICSEARCH_PASSWORD')
+ELASTIC_PASSWORD = os.getenv('ELASTICSEARCH_PASSWORD')
 
 def get_es_source(config):
         
@@ -14,7 +14,7 @@ def get_es_source(config):
         hosts=config['elasticsearch']['host'],
         http_auth=(
             config['elasticsearch']['user'], 
-            elastic_password,
+            ELASTIC_PASSWORD,
         ),
         timeout=120,
         query={
@@ -43,5 +43,6 @@ def get_es_source(config):
             field("crawled_from_instance", string()),
             field("instance", string()),
             field("is_local", bool_()),
+            field("created_at", string()),
         ]),
     )
