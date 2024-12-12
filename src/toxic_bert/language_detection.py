@@ -18,8 +18,10 @@ class LanguageDetector:
         return load_model(model_path)
 
     def __call__(self, batch: DataFrame) -> DataFrame:
+        # Predict full batch in one call to the model (fastText).
         multi_labels, _ = self._lang_detector.predict(
             [text.replace("\n", " ") for text in batch["plaintext"]]
         )
         batch["language"] = [labels[0] for labels in multi_labels]
+
         return batch
