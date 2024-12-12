@@ -1,3 +1,5 @@
+import argparse
+
 from pathlib import Path
 
 from ray import init
@@ -5,19 +7,45 @@ from ray.data import read_datasource
 
 from src.toxic_bert.config_loader import load_config
 from src.toxic_bert.elasticsearch_utils import get_es_source
-from src.toxic_bert.toxicity_analysis import ToxicityClassifier
+from src.toxic_bert.toxicity_classifier_detoxify_original import ToxicityClassifierDetoxifyOriginal
+from src.toxic_bert.toxicity_classifier_detoxify_unbiased import ToxicityClassifierDetoxifyUnbiased
+from src.toxic_bert.toxicity_classifier_google import ToxicityClassifierGoogle
 from src.toxic_bert.text_processing import extract_text
 from src.toxic_bert.language_detection import LanguageDetector
 
 init()
 
 def main():
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Run toxicity classification.")
+
+    parser.add_argument(
+        "--model",
+        type=int,
+        choices=[0, 1, 2],
+        default=0,
+        help="Choose the model: 0 for Detoxify original, 1 for Detoxify unbiased, 2 for Google Perspective.",
+    )
+
+    args = parser.parse_args()
+
     config_path = Path("data/config/config.yaml")
     config = load_config(config_path)
 
     # batch_size = config['toxicity_analysis']['batch_size']
 
     es_source = get_es_source(config)
+    if args.model == 0 :
+        classifier = ToxicityClassifierDetoxifyOriginal()
+        concurrency_classifier = 100
+    elif args.model == 1:
+        classifier = ToxicityClassifierDetoxifyUnbiased()
+        concurrency_classifier = 100
+    elif args.model == 2:
+        classifier = ToxicityClassifierGoogle()
+        concurrency_classifier = 1
+    else:
+        raise ValueError("Invalid model choice.")
 
     (
         read_datasource(
@@ -59,8 +87,8 @@ def main():
         )
         # Classify toxiticity in batches.
         .map_batches(
-            ToxicityClassifier(),
-            concurrency=100,
+            classifier,
+            concurrency=concurrency_classifier,
             num_cpus=0.25,
             num_gpus=0,
             # batch_size=32,
