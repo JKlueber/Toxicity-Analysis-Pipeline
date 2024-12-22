@@ -3,6 +3,7 @@ import argparse
 from pathlib import Path
 
 from ray import init
+from ray.data import read_json
 from ray.data import read_datasource
 
 from src.toxic_bert.config_loader import load_config
@@ -37,15 +38,16 @@ def main():
     es_source = get_es_source(config)
     if args.model == 0 :
         classifier = ToxicityClassifierDetoxifyOriginal()
-        concurrency_classifier = 100
+        concurrency_classifier = 50
     elif args.model == 1:
         classifier = ToxicityClassifierDetoxifyUnbiased()
-        concurrency_classifier = 100
+        concurrency_classifier = 50
     elif args.model == 2:
         classifier = ToxicityClassifierGoogle()
         concurrency_classifier = 1
     else:
         raise ValueError("Invalid model choice.")
+
 
     (
         read_datasource(
@@ -56,6 +58,7 @@ def main():
                 num_cpus=0.01,
             ),
         )
+        # read_json("/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity")
         # Rename the columns.
         .rename_columns(
             names={
@@ -77,6 +80,8 @@ def main():
             concurrency=500,
             num_cpus=0.25,
             num_gpus=0,
+            batch_size=256,
+            # memory = 10 * 1024**3,
             batch_format="pandas",
         )
         # Filter for English text.
@@ -84,14 +89,15 @@ def main():
             lambda batch: batch['language'] == '__label__eng_Latn',
             concurrency=500,
             num_cpus=0.01,
+            # memory = 5 * 1024**3,
         )
         # Classify toxiticity in batches.
         .map_batches(
             classifier,
             concurrency=concurrency_classifier,
-            num_cpus=0.25,
+            num_cpus=0.75,
             num_gpus=0,
-            # batch_size=32,
+            memory = 20 * 1024**3,
             batch_format="pandas",
         )
         # .limit(1000)
