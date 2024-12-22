@@ -1,6 +1,8 @@
 from resiliparse.extract.html2text import extract_plain_text
 from pandas import DataFrame
 
+import gc
+
 def extract_text(batch: DataFrame) -> DataFrame:
     # Extract plaintext from HTML content
     batch["plaintext"] = batch['content'].apply(
@@ -9,5 +11,7 @@ def extract_text(batch: DataFrame) -> DataFrame:
 
     # Filter out empty or whitespace-only plaintexts
     batch = batch[batch['plaintext'].str.strip().astype(bool)]
+
+    gc.collect()
 
     return batch

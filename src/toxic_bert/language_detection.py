@@ -5,6 +5,8 @@ from fasttext.FastText import _FastText
 from huggingface_hub import hf_hub_download
 from pandas import DataFrame
 
+import gc
+
 
 class LanguageDetector:
 
@@ -23,5 +25,7 @@ class LanguageDetector:
             [text.replace("\n", " ") for text in batch["plaintext"]]
         )
         batch["language"] = [labels[0] for labels in multi_labels]
+
+        gc.collect()
 
         return batch

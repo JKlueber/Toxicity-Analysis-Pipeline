@@ -5,6 +5,8 @@ from torch.cuda import is_available as cuda_is_available
 from pandas import DataFrame
 from transformers import pipeline, Pipeline
 
+import gc
+
 
 class ToxicityClassifierDetoxifyOriginal:
 
@@ -47,5 +49,7 @@ class ToxicityClassifierDetoxifyOriginal:
                 scores.get(label, 0)
                 for scores in scores_per_label
             ]
+
+        gc.collect()    
 
         return batch

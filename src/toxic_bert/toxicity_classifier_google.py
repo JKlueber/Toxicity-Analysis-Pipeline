@@ -7,6 +7,9 @@ import time
 import random
 from googleapiclient.errors import HttpError
 
+import gc
+
+
 load_dotenv()
 API_KEY = os.getenv('GOOGLE_API_KEY')
 
@@ -82,5 +85,7 @@ class ToxicityClassifierGoogle:
                 prediction.get(label, 0) 
                 for prediction in predictions
             ]
+    
+        gc.collect()
 
         return batch
