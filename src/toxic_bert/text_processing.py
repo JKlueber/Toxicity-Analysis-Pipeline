@@ -15,3 +15,11 @@ def extract_text(batch: DataFrame) -> DataFrame:
     gc.collect()
 
     return batch
+
+
+def remove_dublicates(batch: DataFrame) -> DataFrame:
+    unique_batch = batch.drop_duplicates(subset=["plaintext"], keep="first")
+
+    gc.collect()
+
+    return unique_batch
