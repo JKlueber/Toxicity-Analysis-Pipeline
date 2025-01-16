@@ -16,7 +16,7 @@ def get_es_source(config):
             config['elasticsearch']['user'], 
             ELASTIC_PASSWORD,
         ),
-        timeout=120,
+        timeout=600,
         query={
             "bool": {
                 "filter": [
