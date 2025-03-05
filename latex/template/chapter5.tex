@@ -5,3 +5,16 @@ The construction of the Ray pipeline for predicting toxicity in posts involved a
 For the toxicity prediction we build a smaller dataset by retaining only the essential columns, namely the plaintext and the group identifiers, while discarding all other unnecessary columns. Because in our study we just focus This filtered dataset is then subjected to toxicity prediction using the selected model, in this case, the Detoxify unbiased model, which assigns toxicity scores to each post across various categories.
 
 After the toxicity predictions are completed, the results are merged back with the original, larger dataset, ensuring that the toxicity scores are aligned with the corresponding posts. Finally, the enriched dataset, now containing both the original data and the toxicity predictions, is written to a .parquet file for efficient storage and subsequent analysis. This structured pipeline not only streamlines the process of toxicity prediction but also ensures scalability and reproducibility, making it well-suited for analyzing large-scale datasets from online communities such as Mastodon.
+
+\section{Data Preperation}
+\subsection{Extract plaintext}
+\subsection{Compute minHash}
+\subsection{Group posts}
+
+\section{Build smaller dataset}
+\subsection{Reduce dataset}
+\subsection{Filter language}
+
+\section{Toxicity Prediction}
+
+\section{Merge predictions}
