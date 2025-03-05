@@ -7,8 +7,9 @@ import time
 import random
 from googleapiclient.errors import HttpError
 
-import gc
+import ray
 
+import gc
 
 load_dotenv()
 API_KEY = os.getenv('GOOGLE_API_KEY')
@@ -25,6 +26,12 @@ class ToxicityClassifierGoogle:
         )
 
     def _analyze(self, text: str) -> dict:
+
+        max_bytes = 20400
+        if len(text.encode('utf-8')) > max_bytes:
+            while len(text.encode('utf-8')) > max_bytes:
+                text = text[:-10]
+
         analyze_request = {
             'comment': {'text': text},
             'requestedAttributes': {
@@ -35,7 +42,6 @@ class ToxicityClassifierGoogle:
                 'PROFANITY': {},
                 'THREAT': {},
                 'SEXUALLY_EXPLICIT': {},
-                'FLIRTATION': {}
             },
             'languages': ['en']
         }
@@ -78,7 +84,6 @@ class ToxicityClassifierGoogle:
             "INSULT": "insult",
             "IDENTITY_ATTACK": "identity_attack",
             "SEXUALLY_EXPLICIT": "sexually_explicit",
-            "FLIRTATION": "flirtation",
         }
         for label, column in labels_to_columns.items():
             batch[column] = [
