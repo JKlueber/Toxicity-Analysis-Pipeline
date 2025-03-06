@@ -2,15 +2,15 @@ import argparse
 from pathlib import Path
 import os
 
-from ray.data import read_datasource
 import ray
-from ray.util.dask import enable_dask_on_ray
+from ray.data import read_datasource, from_pandas
+from ray.util.dask import enable_dask_on_ray, disable_dask_on_ray
 
 from src.toxic_bert.toxicity_classifier_detoxify_original import ToxicityClassifierDetoxifyOriginal
 from src.toxic_bert.toxicity_classifier_detoxify_unbiased import ToxicityClassifierDetoxifyUnbiased
 from src.toxic_bert.toxicity_classifier_google import ToxicityClassifierGoogle
 from src.toxic_bert.language_detection import LanguageDetector
-from src.toxic_bert.similarity_grouping import GroupBuilder, GroupIDCounter
+from src.toxic_bert.similarity_grouping import GroupBuilder
 from src.toxic_bert.config_loader import load_config
 from src.toxic_bert.elasticsearch_utils import get_es_source
 from src.toxic_bert.text_processing import extract_text
@@ -18,8 +18,7 @@ from src.toxic_bert.dataset import get_hash, write_data, merge_data
 
 os.environ["RAY_RUNTIME_ENV_TEMPORARY_REFERENCE_EXPIRATION_S"] = "3600"
 
-ray.init(_tracing_startup_hook="ray.tracing.setup_tracing")
-enable_dask_on_ray()
+ray.init()
 
 def main():
     parser = argparse.ArgumentParser(description="Run toxicity classification.")
@@ -48,15 +47,12 @@ def main():
     else:
         raise ValueError("Invalid model choice.")
     
-    counter_actor = GroupIDCounter.remote() 
-
     config_path = Path("data/config/config.yaml")
     config = load_config(config_path)
-    output_dir = "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/result/"
-
+    output_dir = config["toxicity_analysis"]["output_dir"]
     es_source = get_es_source(config)
 
-    df = ( 
+    ds = ( 
         read_datasource(
             datasource=es_source,
             concurrency=100,
@@ -82,21 +78,23 @@ def main():
             memory=2 * 1024**3, # 0.1 GB per task
         ) 
         .map_batches(
-            GroupBuilder(counter_actor),
+            GroupBuilder(),
             concurrency=20,
             num_cpus=2,
             batch_size=1_000_000,
             batch_format="pandas",
             memory=10 * 1024**3, # 20 GB per task
         ) 
-    ).to_pandas()
+    )
 
+    df = ds.to_pandas()
     df_small = df.drop(columns=["_id", "crawled_from_instance", "is_local", "created_at", "sensitive", "spoiler_text", "uri", "instance", "hash"])
     df_small = df_small.drop_duplicates(subset=["group"]).reset_index(drop=True)
-    ds_small = ray.data.from_pandas(df_small)
+    ds_small = from_pandas(df_small)
 
     ds_toxic = (
         ds_small
+        .repartition(num_blocks=500)
         .map_batches(
             LanguageDetector(),
             concurrency=150,
@@ -124,14 +122,15 @@ def main():
    )
     
     df_toxic = ds_toxic.to_pandas()
-
     df_toxic = df_toxic.drop(columns=["plaintext"])
 
+    enable_dask_on_ray()
     merged_df = (
         merge_data(df_toxic, df, on="group")
         .dropna(subset=["language"])
         .drop(columns=["group", "language"])
     )
+    disable_dask_on_ray()
 
     write_data(merged_df, output_dir)
 
