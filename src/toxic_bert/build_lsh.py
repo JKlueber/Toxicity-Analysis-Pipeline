@@ -34,6 +34,8 @@ def main():
             ray_remote_args=dict(
                 num_cpus=0.01,
                 memory=2 * 1024**3,
+                max_retries=10, 
+                retry_exceptions=True,
             ),
         )
         .map_batches(
