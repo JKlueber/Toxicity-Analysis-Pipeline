@@ -7,14 +7,12 @@ import time
 import random
 from googleapiclient.errors import HttpError
 
-import ray
-
 import gc
 
 load_dotenv()
-API_KEY = os.getenv('GOOGLE_API_KEY')
+API_KEY = os.getenv('PERSPECTIVE_API_KEY')
 
-class ToxicityClassifierGoogle:
+class ToxicityClassifierPerspectiveAPI:
 
     # Initialize the Perspective API client
     def __init__(self):
