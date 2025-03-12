@@ -2,13 +2,21 @@ from ray_elasticsearch import ElasticsearchDatasource
 from dotenv import load_dotenv
 import os
 from pyarrow import schema, field, string, bool_
+from pathlib import Path
 
 load_dotenv()
 
 ELASTIC_PASSWORD = os.getenv('ELASTICSEARCH_PASSWORD')
 
+def read_instances_from_file(config):
+    file_path = Path(config['elasticsearch']['instances_file'])
+    with open(file_path, 'r') as file:
+        instances = [line.strip() for line in file if line.strip()]
+    return instances
+
 def get_es_source(config):
-        
+    instances = read_instances_from_file(config)
+
     return ElasticsearchDatasource(
         index=config['elasticsearch']['index'],
         hosts=config['elasticsearch']['host'],
@@ -26,18 +34,23 @@ def get_es_source(config):
             "bool": {
                 "filter": [
                     {
-                    "range": {
-                        "crawled_at": {
-                            "gte": config['date_range']['after'],
-                            "lte": config['date_range']['before'],
-                            "format": "date_hour_minute_second"
-                        }                                                                                                                            
-                    }
+                        "range": {
+                            "crawled_at": {
+                                "gte": config['date_range']['after'],
+                                "lte": config['date_range']['before'],
+                                "format": "date_hour_minute_second"
+                            }                                                                                                                            
+                        }
                     },
                     {
-                    "term": {
-                        "language": config['elasticsearch']['language']
-                    }
+                        "terms": {
+                            "crawled_from_instance": instances
+                        }
+                    },
+                    {
+                        "term": {
+                            "language": config['elasticsearch']['language']
+                        }
                     }
                 ]
             }
@@ -55,6 +68,7 @@ def get_es_source(config):
     )
 
 def get_es_source_deduplication(config):
+    instances = read_instances_from_file(config)
         
     return ElasticsearchDatasource(
         index=config['elasticsearch']['index'],
@@ -73,18 +87,23 @@ def get_es_source_deduplication(config):
             "bool": {
                 "filter": [
                     {
-                    "range": {
-                        "created_at": {
-                            "gte": config['date_range']['after'],
-                            "lte": config['date_range']['before'],
-                            "format": "date_hour_minute_second"
-                        }                                                                                                                            
-                    }
+                        "range": {
+                            "created_at": {
+                                "gte": config['date_range']['after'],
+                                "lte": config['date_range']['before'],
+                                "format": "date_hour_minute_second"
+                            }                                                                                                                            
+                        }
                     },
                     {
-                    "term": {
-                        "language": config['elasticsearch']['language']
-                    }
+                        "terms": {
+                            "crawled_from_instance": instances
+                        }
+                    },
+                    {
+                        "term": {
+                            "language": config['elasticsearch']['language']
+                        }
                     }
                 ]
             }
