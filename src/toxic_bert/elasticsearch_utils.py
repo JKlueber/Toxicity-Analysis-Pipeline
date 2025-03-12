@@ -16,7 +16,12 @@ def get_es_source(config):
             config['elasticsearch']['user'], 
             ELASTIC_PASSWORD,
         ),
-        timeout=600,
+        # verify_certs=False,
+        timeout=60*60*24, # 1 day
+        retry_on_timeout=True,
+        max_retries=10,
+        # connection_pool={"maxsize": 1000},
+        keep_alive="24h",
         query={
             "bool": {
                 "filter": [
@@ -26,7 +31,7 @@ def get_es_source(config):
                             "gte": config['date_range']['after'],
                             "lte": config['date_range']['before'],
                             "format": "date_hour_minute_second"
-                        }
+                        }                                                                                                                            
                     }
                     },
                     {
@@ -44,5 +49,48 @@ def get_es_source(config):
             field("instance", string()),
             field("is_local", bool_()),
             field("created_at", string()),
+            field("sensitive", bool_()),
+            field("spoiler_text", string()),
+        ]),
+    )
+
+def get_es_source_deduplication(config):
+        
+    return ElasticsearchDatasource(
+        index=config['elasticsearch']['index'],
+        hosts=config['elasticsearch']['host'],
+        http_auth=(
+            config['elasticsearch']['user'], 
+            ELASTIC_PASSWORD,
+        ),
+        # verify_certs=False,
+        timeout=60*60*24, # 1 day
+        retry_on_timeout=True,
+        max_retries=20,
+        # connection_pool={"maxsize": 1000},
+        keep_alive="24h",
+        query={
+            "bool": {
+                "filter": [
+                    {
+                    "range": {
+                        "created_at": {
+                            "gte": config['date_range']['after'],
+                            "lte": config['date_range']['before'],
+                            "format": "date_hour_minute_second"
+                        }                                                                                                                            
+                    }
+                    },
+                    {
+                    "term": {
+                        "language": config['elasticsearch']['language']
+                    }
+                    }
+                ]
+            }
+        },
+        schema=schema([
+            field("content", string()),
+            field("_id", string()),
         ]),
     )
