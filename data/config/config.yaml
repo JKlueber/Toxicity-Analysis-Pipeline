@@ -4,6 +4,7 @@ elasticsearch:
   user: "po87xox"
   index: "corpus_mastodon_statuses_*"
   language: "en"
+  instances_file: "data/instances.txt"
 
 date_range:
   # after: "2024-01-01T00:00:00"
