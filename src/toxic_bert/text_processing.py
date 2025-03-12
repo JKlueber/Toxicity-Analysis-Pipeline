@@ -12,14 +12,9 @@ def extract_text(batch: DataFrame) -> DataFrame:
     # Filter out empty or whitespace-only plaintexts
     batch = batch[batch['plaintext'].str.strip().astype(bool)]
 
+    # Drop the original content column
+    batch = batch.drop(columns=['content'])
+
     gc.collect()
 
     return batch
-
-
-def remove_dublicates(batch: DataFrame) -> DataFrame:
-    unique_batch = batch.drop_duplicates(subset=["plaintext"], keep="first")
-
-    gc.collect()
-
-    return unique_batch
