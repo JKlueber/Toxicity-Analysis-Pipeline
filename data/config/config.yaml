@@ -6,8 +6,20 @@ elasticsearch:
   language: "en"
 
 date_range:
-  after: "2024-07-26T20:00:00"
-  before: "2024-07-26T23:00:00"
+  # after: "2024-01-01T00:00:00"
+  # before: "2024-01-01T12:00:00"  
+  
+  after: "2024-01-01T00:00:00"
+  before: "2024-02-01T00:00:00"
+
+  # after: "2024-01-01T00:00:00"
+  # before: "2025-01-01T00:00:00"
 
 toxicity_analysis:
-  batch_size: 128
+  output_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity_data/"
+
+deduplication:
+  output_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/deduplicated_data/"
+
+merge:
+  output_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/result/"
