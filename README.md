@@ -93,10 +93,6 @@ Replace `<model_number>` with:
 - `1` for **Detoxify Unbiased**
 - `2` for **Perspective API**
 
----
-
-Replace `<model_number>` with `0` for Detoxify Original, `1` for Detoxify Unbiased, or `2` for Perspective API.
-
 4. **Merge Data**:
 ```bash
 ray job submit --runtime-env env.yml --no-wait -- python -m src.merging.merge_data
