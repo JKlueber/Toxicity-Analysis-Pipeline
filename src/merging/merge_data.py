@@ -14,8 +14,7 @@ os.environ["RAY_RUNTIME_ENV_TEMPORARY_REFERENCE_EXPIRATION_S"] = "3600"
 init(ignore_reinit_error=True)
 
 def main():
-    config_path = Path("src/config/config.yaml")
-    config = load_config(config_path)
+    config = load_config()
     output_dir = config["merge"]["output_dir"]
     es_source = get_es_source(config)
 

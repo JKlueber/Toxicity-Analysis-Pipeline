@@ -37,8 +37,7 @@ def main():
         raise ValueError("Invalid model choice.")
 
 
-    config_path = Path("src/config/config.yaml")
-    config = load_config(config_path)
+    config = load_config()
 
     input_dir = config["deduplication"]["output_dir"]
     output_dir = config["toxicity_analysis"]["output_dir"]
