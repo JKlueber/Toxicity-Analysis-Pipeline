@@ -6,7 +6,7 @@ import pickle
 from functools import cached_property
 import logging
 
-from data_processing.dataset_loader import load_data
+from src.data_processing.dataset_loader import load_dataset
 
 logging.basicConfig(level=logging.INFO)
 
@@ -72,7 +72,7 @@ class MergeHash:
     def _load_data_to_merge(self) -> pd.DataFrame:
         data_path = "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity_data/"
         pattern = "980_*.parquet"
-        data_toxicity = load_data(data_path, pattern)
+        data_toxicity = load_dataset(data_path, pattern)
         data = data_toxicity.to_pandas()
         return data
 
