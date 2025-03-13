@@ -1,5 +1,6 @@
 .env
 venv
-output
 __pycache__
 toxicity_classifier.egg-info
+data/*.csv
+jupyter_notebooks
