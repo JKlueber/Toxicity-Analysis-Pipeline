@@ -2,17 +2,18 @@ import os
 from pathlib import Path
 from ray import init
 from ray.data import read_datasource
-from utils.elasticsearch_utils import get_es_source_deduplication
-from config.config_loader import load_config
-from data_processing.text_extractor import extract_text
-from utils.minhash_utils import HashFinder
+
+from src.utils.elasticsearch_utils import get_es_source_deduplication
+from src.config.config_loader import load_config
+from src.data_processing.text_extractor import extract_text
+from src.utils.minhash_utils import HashFinder
 
 os.environ["RAY_RUNTIME_ENV_TEMPORARY_REFERENCE_EXPIRATION_S"] = "3600"
 
 init()
 
 def main():
-    config_path = Path("data/config/config.yaml")
+    config_path = Path("src/config/config.yaml")
     config = load_config(config_path)
     output_dir = config["deduplication"]["output_dir"]
     es_source = get_es_source_deduplication(config)

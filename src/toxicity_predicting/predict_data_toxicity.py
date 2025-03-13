@@ -4,12 +4,12 @@ import os
 
 import ray
 
-from src.toxic_bert.toxicity_classifier_detoxify_original import ToxicityClassifierDetoxifyOriginal
-from src.toxic_bert.toxicity_classifier_detoxify_unbiased import ToxicityClassifierDetoxifyUnbiased
-from toxic_bert.toxicity_classifier_perspective_api import ToxicityClassifierPerspectiveAPI
-from data_processing.language_detector import LanguageDetector
-from config.config_loader import load_config
-from data_processing.dataset_loader import load_data
+from src.toxicity_predicting.toxicity_classifier_detoxify_original import ToxicityClassifierDetoxifyOriginal
+from src.toxicity_predicting.toxicity_classifier_detoxify_unbiased import ToxicityClassifierDetoxifyUnbiased
+from src.toxicity_predicting.toxicity_classifier_perspective_api import ToxicityClassifierPerspectiveAPI
+from src.data_processing.language_detector import LanguageDetector
+from src.config.config_loader import load_config
+from src.data_processing.dataset_loader import load_dataset
 
 os.environ["RAY_RUNTIME_ENV_TEMPORARY_REFERENCE_EXPIRATION_S"] = "3600"
 
@@ -37,13 +37,13 @@ def main():
         raise ValueError("Invalid model choice.")
 
 
-    config_path = Path("config/config.yaml")
+    config_path = Path("src/config/config.yaml")
     config = load_config(config_path)
 
     input_dir = config["deduplication"]["output_dir"]
     output_dir = config["toxicity_analysis"]["output_dir"]
 
-    ds = load_data(input_dir, "*.parquet")
+    ds = load_dataset(input_dir, "*.parquet")
 
     (
         ds

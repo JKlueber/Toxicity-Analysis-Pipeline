@@ -4,17 +4,17 @@ from pathlib import Path
 from ray import init
 from ray.data import read_datasource
 
-from utils.elasticsearch_utils import get_es_source
-from config.config_loader import load_config
-from data_processing.text_extractor import extract_text
-from utils.minhash_utils import MergeHash
+from src.utils.elasticsearch_utils import get_es_source
+from src.config.config_loader import load_config
+from src.data_processing.text_extractor import extract_text
+from src.utils.minhash_utils import MergeHash
 
 os.environ["RAY_RUNTIME_ENV_TEMPORARY_REFERENCE_EXPIRATION_S"] = "3600"
 
 init(ignore_reinit_error=True)
 
 def main():
-    config_path = Path("config/config.yaml")
+    config_path = Path("src/config/config.yaml")
     config = load_config(config_path)
     output_dir = config["merge"]["output_dir"]
     es_source = get_es_source(config)
