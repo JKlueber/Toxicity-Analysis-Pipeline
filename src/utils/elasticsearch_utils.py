@@ -24,11 +24,9 @@ def get_es_source(config):
             config['elasticsearch']['user'], 
             ELASTIC_PASSWORD,
         ),
-        # verify_certs=False,
         timeout=60*60*24, # 1 day
         retry_on_timeout=True,
         max_retries=10,
-        # connection_pool={"maxsize": 1000},
         keep_alive="24h",
         query={
             "bool": {
@@ -77,11 +75,9 @@ def get_es_source_deduplication(config):
             config['elasticsearch']['user'], 
             ELASTIC_PASSWORD,
         ),
-        # verify_certs=False,
         timeout=60*60*24, # 1 day
         retry_on_timeout=True,
         max_retries=20,
-        # connection_pool={"maxsize": 1000},
         keep_alive="24h",
         query={
             "bool": {
