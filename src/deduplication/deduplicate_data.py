@@ -21,7 +21,6 @@ def main():
             datasource=es_source,
             concurrency=1000,
             override_num_blocks=1000,
-            #override_num_blocks=4_000_000,
             ray_remote_args=dict(
                 num_cpus=0.01,
                 memory=2 * 1024**3,
