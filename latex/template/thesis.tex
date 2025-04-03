@@ -35,11 +35,15 @@
 
 \usepackage{graphicx}
 \usepackage{tabularx}
+\usepackage{todonotes}
+\usepackage{wrapfig}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
 
 %
 % Suggested Packages
 % ------------------
-\usepackage[sort&compress]{natbib}
+\usepackage[sort&compress, numbers]{natbib}
 %   Allows citing in different ways (e.g., only the authors if you use the
 %   citation again within a short time).
 %
@@ -97,15 +101,13 @@
 % optional: list of symbols/notation (e.g., using the nomencl package) but usually not needed
 \end{frontmatter}
 
-\include{chapter1}
-\include{chapter2}
-\include{chapter3}
-\include{chapter4}
-\include{chapter5}
-\include{chapter6}
-\include{chapter7}
-
-\include{appendixA}
+\include{introduction}
+\include{related_work}
+\include{mastodon_dataset}
+\include{building_pipeline}
+\include{choosing_toxicity_classifier}
+\include{result_analysis}
+\include{discussion}
 
 % Bibliography
 \bibliographystyle{plainnat} % requires package natbib. An alternative is apalike

@@ -1,0 +1,37 @@
+\chapter{Introduction}\label{introduction}
+
+Social media has become an essential part of modern life, enabling billions of people to share their stories, connect over shared interests, and participate in discussions on global events. This has resulted in the formation of large online communities. Unlike physical communities, online communities allow for easier and more immediate grouping of individuals, as joining a community often requires minimal effort; simply clicking a button or following a page \cite{ellison:2007}. This ease of access fosters the creation of diverse and dynamic social ecosystems, where users interact under shared norms, behaviors, and communication styles unique to each community.
+
+However, the aggregation of large numbers of individuals in online communities also increases the likelihood of negative behaviors, such as toxicity. Toxicity in online spaces refers to harmful actions, including hate speech, racism, sexism, and other forms of discrimination. These behaviors are often exacerbated by the anonymity and reduced social inhibitions that characterize digital environments \cite{suler:2004}.
+
+\begin{figure}[ht]
+    \centering
+    \fbox{%
+      \parbox{0.8\textwidth}{%
+        \centering
+        "And two *racist* will light the fire. Of fucking course." \\
+        "Fuck all you obedient slaves." \\
+        "Rio had maybe five percent of the *racist* and *homophobic* from this disaster."
+      }
+    }
+    \caption{Three toxic examples posted during the 2024 Paris Olympics opening ceremony. Severe harmful words got replaced with the kind of offence.}
+\end{figure}
+
+Such behaviors can disrupt community solidarity and harm individual users, making toxicity a significant challenge for social media platforms. To mitigate these issues, online communities establish rules and moderation systems to enforce acceptable behavior. Violations of these rules can result in penalties, such as bans or restrictions, depending on the platform's moderation policies \cite{nicholson:2023}.
+
+To understand the dynamics of online communities and the challenges they face, this case study focuses on Mastodon, a decentralized alternative to traditional social media platforms like Twitter. The recent acquisition of Twitter by Elon Musk has highlighted the risks of centralized social media, where a single individual or entity can exert significant control over platform governance, content moderation, and user experience \cite{zia:2023}. Such centralization can lead to abrupt policy changes, increased misinformation, and heightened toxicity, prompting users to seek alternatives. Mastodon, as a decentralized and federated platform, offers a contrasting model where power is distributed across independently operated instances. However, this decentralization also introduces unique challenges, such as inconsistent moderation standards and the potential for fragmentation within the fediverse \cite{zia:2023}. By examining Mastodon, this study aims to explore how decentralized platforms address toxicity and community management while navigating the complexities of a federated ecosystem.
+
+Like every social media platform, Mastodon offers the possibility to interact with other people by publishing posts, reacting to posts, or sharing posts. However, Mastodon is a federated social media platform. Federation refers to a special kind of decentralization. Traditional social media platforms, such as Twitter, Facebook, or Instagram, have a single central service that all users access. In contrast, Mastodon has multiple services, called instances, which are used by any number of people. These instances can communicate with each other and create a federated network. Users can freely choose an instance based on language, community rules, moderation policies, and topics of interest. Each instance is managed by its own administrators, who set and enforce local rules \cite{mastodon:docs}.
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=\textwidth]{../material/network_models.jpg}
+    \caption{From left to right: Centralized networks funnel all connections through a single controlling hub; Federated networks organize nodes into semi-autonomous interconnected clusters; Distributed networks connect all nodes with multiple pathways, maximizing resilience through decentralization. \cite{mastodon:docs}}
+    \label{fig:network-models}
+\end{figure}
+
+To study the behavior of online communities on Mastodon, we analyze a dataset containing around 1.8 billion public Mastodon posts, called toots, collected from 1000 instances over the whole year 2024. The dataset includes metadata and the posted content, enabling an analysis of toxicity trends across instances and the interactions between them. However, given the scale of the dataset, traditional data processing methods are insufficient. To address this challenge, we build a distributed data processing pipeline using the Ray framework \cite{moritz:2018}. Ray provides a scalable and efficient platform for handling large-scale data, enabling us to perform tasks such as data deduplication, language detection, and toxicity prediction in a distributed manner.
+
+By building this pipeline, we aim to provide a scalable and reproducible framework for analyzing toxicity in large-scale social media datasets. The study not only contributes to understanding toxicity in federated social networks like Mastodon but also demonstrates the practical application of distributed computing frameworks like Ray for social media research. The pipeline's modular design allows for future extensions, such as incorporating additional toxicity models or adapting the workflow to other social media platforms.
+
+\enlargethispage{\baselineskip}
