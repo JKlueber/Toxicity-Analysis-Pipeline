@@ -10,11 +10,8 @@ import gc
 
 class ToxicityClassifierDetoxifyOriginal:
 
-    def __init__(self):
-        self._pipeline = self._load_pipeline
-
     @cached_property
-    def _load_pipeline(self) -> Pipeline:
+    def _pipeline(self) -> Pipeline:
         return pipeline(
             "text-classification",
             model="unitary/toxic-bert",

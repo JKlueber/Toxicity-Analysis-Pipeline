@@ -77,7 +77,7 @@ class ToxicityClassifierPerspectiveAPI:
         labels_to_columns = {
             "TOXICITY": "toxicity",
             "SEVERE_TOXICITY": "severe_toxicity",
-            "PROFANITY": "profanity",
+            "PROFANITY": "obscenity",
             "THREAT": "threat",
             "INSULT": "insult",
             "IDENTITY_ATTACK": "identity_attack",

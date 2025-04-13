@@ -6,15 +6,12 @@ from huggingface_hub import hf_hub_download
 from pandas import DataFrame
 
 import gc
-
+import ray 
 
 class LanguageDetector:
 
-    def __init__(self):
-        self._lang_detector = self._load_lang_detector
-
     @cached_property
-    def _load_lang_detector(self) -> _FastText:
+    def _lang_detector(self) -> _FastText:
         model_path = hf_hub_download(
             repo_id="facebook/fasttext-language-identification",
             cache_dir="/tmp/fasttext",
