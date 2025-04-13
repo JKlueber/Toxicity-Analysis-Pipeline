@@ -8,10 +8,12 @@ This repository contains a pipeline for analyzing the toxicity of text data usin
 
 1. [Overview](#overview)
 2. [Pipeline Steps](#pipeline-steps)
-   - [1. Build LSH (Locality-Sensitive Hashing)](#1-build-lsh-locality-sensitive-hashing)
-   - [2. Deduplicate Data](#2-deduplicate-data)
-   - [3. Predict Toxicity](#3-predict-toxicity)
-   - [4. Merge Data](#4-merge-data)
+   - [1. Read Data from Elasticsearch](#1-read-data-from-elasticsearch)
+   - [2. Preprocess Data](#2-preprocess-data)
+   - [3. Build LSH (Locality-Sensitive Hashing)](#3-build-lsh-locality-sensitive-hashing)
+   - [4. Deduplicate Data](#4-deduplicate-data)
+   - [5. Predict Toxicity](#5-predict-toxicity)
+   - [6. Merge Data](#6-merge-data)
 3. [Running the Pipeline](#running-the-pipeline)
 4. [Configuration](#configuration)
 5. [Dependencies](#dependencies)
@@ -29,7 +31,23 @@ The pipeline is designed to handle large-scale datasets by distributing the work
 
 ## Pipeline Steps
 
-### 1. Build LSH (Locality-Sensitive Hashing)
+### 1. Read Data from Elasticsearch
+
+- **File**: `read_data.py`
+- **Description**: 
+  - This step reads filtered Data from Elasticsearch and directly saves it in the local storage.
+- **Output**: 
+  -The dataset saved in **Parquet format**, which is used as input for the subsampling and preprocessing step
+
+### 2. Preprocess Data
+
+- **File**: `preprocess_data.py`
+- **Description**: 
+  - This step preprocesses the original Dataset by subsampling, plaintext extraction and MinHash calculation.
+- **Output**: 
+  -The preprocessed dataset saved in **Parquet format**, which is used as input for the LSH building, deduplication, and merging.
+
+### 3. Build LSH (Locality-Sensitive Hashing)
 
 - **File**: `build_lsh.py`
 - **Description**: 
@@ -38,7 +56,7 @@ The pipeline is designed to handle large-scale datasets by distributing the work
 - **Output**: 
   - A serialized LSH object saved as a `.pkl` file, which is used in the deduplication step.
 
-### 2. Deduplicate Data
+### 4. Deduplicate Data
 
 - **File**: `deduplicate_data.py`
 - **Description**: 
@@ -47,7 +65,7 @@ The pipeline is designed to handle large-scale datasets by distributing the work
 - **Output**: 
   - A deduplicated dataset saved in **Parquet format**, which is used as input for the toxicity prediction step.
 
-### 3. Predict Toxicity
+### 5. Predict Toxicity
 
 - **File**: `predict_data_toxicity.py`
 - **Description**: 
@@ -59,7 +77,7 @@ The pipeline is designed to handle large-scale datasets by distributing the work
 - **Output**: 
   - A dataset with predicted toxicity scores saved in **Parquet format**.
 
-### 4. Merge Data
+### 6. Merge Data
 
 - **File**: `merge_data.py`
 - **Description**: 
@@ -74,17 +92,27 @@ The pipeline is designed to handle large-scale datasets by distributing the work
 
 To run the pipeline, you need to execute the steps in the following order:
 
-1. **Build LSH**:
+1. **Read Data**:
+```bash
+ray job submit --runtime-env env.yml --no-wait -- python -m src.reading.read_data
+```
+
+2. **Preprocess Data**:
+```bash
+ray job submit --runtime-env env.yml --no-wait -- python -m src.data_processing.preprocess_data
+```
+
+2. **Build LSH**:
 ```bash
 ray job submit --runtime-env env.yml --no-wait -- python -m src.deduplication.build_lsh
 ```
 
-2. **Deduplicate Data**:
+3. **Deduplicate Data**:
 ```bash
 ray job submit --runtime-env env.yml --no-wait -- python -m src.deduplication.deduplicate_data
 ```
 
-3. **Predict Toxicity**:
+4. **Predict Toxicity**:
 ```bash
 ray job submit --runtime-env env.yml --no-wait -- python -m src.toxicity_predicting.predict_data_toxicity --model <model_number>
 ```
@@ -93,7 +121,7 @@ Replace `<model_number>` with:
 - `1` for **Detoxify Unbiased**
 - `2` for **Perspective API**
 
-4. **Merge Data**:
+5. **Merge Data**:
 ```bash
 ray job submit --runtime-env env.yml --no-wait -- python -m src.merging.merge_data
 ```
@@ -119,14 +147,14 @@ date_range:
   after: "2024-01-01T00:00:00"
   before: "2024-12-31T23:59:59"
 
-toxicity_analysis:
-  output_dir: "path/to/toxicity_analysis_output"
-
-deduplication:
-  output_dir: "path/to/deduplication_output"
-
-merge:
-  output_dir: "path/to/merge_output"
+dir:
+  output_dir: "path_to_final_data_output"
+  input_dir: "path_to_reading_output"
+  input_sample_dir: "path_to_preprocess_output"
+  lsh_dir: "path_to_lsh_output"
+  deduplication_dir: "path/to/deduplication_output"
+  toxicity_analysis_dir: "path/to/toxicity_analysis_output"
+  merge_dir: "path/to/merge_output"
 ```
 
 Make sure to replace the placeholders with your actual configuration values:
@@ -135,9 +163,7 @@ Make sure to replace the placeholders with your actual configuration values:
 - `your_elasticsearch_index_pattern`: The index pattern for your Elasticsearch data.
 - `path/to/instances_file.txt`: The path to the file containing the list of Mastodon instances.
 - `2024-01-01T00:00:00` and `2024-12-31T23:59:59`: The date range for the data you want to process.
-- `path/to/toxicity_analysis_output`: The directory where the toxicity analysis results will be saved.
-- `path/to/deduplication_output`: The directory where the deduplicated data will be saved.
-- `path/to/merge_output`: The directory where the final merged data will be saved.
+- `path/to/..._output`: The paths to the output of every singele pipeline. **The paths have to be different!**
 
 ### `.env`
 
