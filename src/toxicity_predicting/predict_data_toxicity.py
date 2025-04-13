@@ -3,13 +3,13 @@ from pathlib import Path
 import os
 
 import ray
+from ray.data import read_parquet_bulk
 
 from src.toxicity_predicting.toxicity_classifier_detoxify_original import ToxicityClassifierDetoxifyOriginal
 from src.toxicity_predicting.toxicity_classifier_detoxify_unbiased import ToxicityClassifierDetoxifyUnbiased
 from src.toxicity_predicting.toxicity_classifier_perspective_api import ToxicityClassifierPerspectiveAPI
 from src.data_processing.language_detector import LanguageDetector
 from src.config.config_loader import load_config
-from src.data_processing.dataset_loader import load_dataset
 
 os.environ["RAY_RUNTIME_ENV_TEMPORARY_REFERENCE_EXPIRATION_S"] = "3600"
 
@@ -39,41 +39,57 @@ def main():
 
     config = load_config()
 
-    input_dir = config["deduplication"]["output_dir"]
-    output_dir = config["toxicity_analysis"]["output_dir"]
-
-    ds = load_dataset(input_dir, "*.parquet")
+    input_dir = config["dir"]["deduplication_dir"]
+    output_dir = config["dir"]["toxicity_analysis_dir"]
+    file_paths = [str(file) for file in Path(input_dir).glob("*.parquet")]
 
     (
-        ds
-        #.repartition(num_blocks=ds.count() // 1000)
+        read_parquet_bulk(
+            paths=file_paths,
+            concurrency=100,
+            ray_remote_args=dict(
+                num_cpus=0.01,
+                memory=2 * 1024**3,
+                max_retries=10, 
+                retry_exceptions=True,
+            )
+        )
         .map_batches(
             LanguageDetector(),
-            concurrency=500,
-            num_cpus=0.1,
+            concurrency=100,
+            num_cpus=0.01,
             num_gpus=0,
             batch_format="pandas",
-            memory=3 * 1024**3,       
+            memory=2 * 1024**3,
+            max_retries=10, 
+            retry_exceptions=True,       
         )
         .filter(
             lambda batch: batch['language'] == '__label__eng_Latn',
-            concurrency=500,
+            concurrency=100,
             num_cpus=0.01,
             memory=2 * 1024**3,
+            max_retries=10, 
+            retry_exceptions=True,
         )
         .map_batches(
             classifier,
-            concurrency=150,
-            num_cpus=0.5,
+            concurrency=100,
+            num_cpus=0.01,
             num_gpus=0,
             batch_format="pandas",
-            memory=5 * 1024**3,
+            memory=3 * 1024**3,
+            max_retries=10, 
+            retry_exceptions=True,
         )
         .write_parquet(
             path=output_dir,
+            concurrency=100,
             ray_remote_args=dict(
                 num_cpus=0.01,
-                memory = 2 * 1024**3,
+                memory =2 * 1024**3,
+                max_retries=10, 
+                retry_exceptions=True,
             )
         )
     )
