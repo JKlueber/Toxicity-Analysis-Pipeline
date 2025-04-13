@@ -9,7 +9,7 @@ elasticsearch:
 date_range:
   after: "2024-01-01T00:00:00"
   before: "2024-12-31T23:59:59"
-
+  
 dir:
   output_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/output_data/"
   input_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/input_data/"
