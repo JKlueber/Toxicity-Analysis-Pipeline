@@ -7,20 +7,14 @@ elasticsearch:
   instances_file: "data/instances.txt"
 
 date_range:
-  # after: "2024-01-01T00:00:00"
-  # before: "2024-01-01T12:00:00"  
-  
   after: "2024-01-01T00:00:00"
-  before: "2024-02-01T00:00:00"
+  before: "2024-12-31T23:59:59"
 
-  # after: "2024-01-01T00:00:00"
-  # before: "2025-01-01T00:00:00"
-
-toxicity_analysis:
-  output_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity_data/"
-
-deduplication:
-  output_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/deduplicated_data/"
-
-merge:
-  output_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/result/"
+dir:
+  output_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/output_data/"
+  input_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/input_data/"
+  input_sample_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/input_data_sample/"
+  lsh_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/lsh/"
+  deduplication_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/deduplicated_data/"
+  toxicity_analysis_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/toxicity_data/"
+  merge_dir: "/mnt/ceph/storage/data-in-progress/data-teaching/theses/thesis-klueber/output_data/"
