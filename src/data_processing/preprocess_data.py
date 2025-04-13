@@ -29,7 +29,7 @@ def main():
             concurrency=100,
             ray_remote_args=dict(
                 num_cpus=0.01,
-                memory=4 * 1024**3,
+                memory=2 * 1024**3,
                 max_retries=10, 
                 retry_exceptions=True,
             )
@@ -39,7 +39,7 @@ def main():
             concurrency=100,
             num_cpus=0.01,
             batch_format="pandas",
-            memory=4 * 1024**3,
+            memory=2 * 1024**3,
             max_retries=10, 
             retry_exceptions=True,
         )
@@ -48,7 +48,7 @@ def main():
             concurrency=100,
             num_cpus=0.01,
             batch_format="pandas",
-            memory=10 * 1024**3,
+            memory=2 * 1024**3,
             max_retries=10, 
             retry_exceptions=True,
         )
@@ -57,17 +57,16 @@ def main():
             concurrency=100,
             num_cpus=0.01,
             batch_format="pandas",
-            memory=10 * 1024**3,
+            memory=2 * 1024**3,
             max_retries=10, 
             retry_exceptions=True,
         )
         .write_parquet(
             path=output_dir,
             concurrency=100,
-            min_rows_per_file = 100_000,
             ray_remote_args=dict(
                 num_cpus=0.01,
-                memory=4 * 1024**3,
+                memory=2 * 1024**3,
                 max_retries=10, 
                 retry_exceptions=True,
             )
