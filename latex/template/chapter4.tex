@@ -1,12 +1,22 @@
 \chapter{Choosing Transformer-based Toxicity Analyzer} \label{choosing-toxicity-analyzer}
+Modern toxicity detection systems rely on Transformer-based language models, which have revolutionized natural language processing through their ability to learn contextualized word representations. The Transformer architecture, introduced by \citet{vaswani:2017}, works differently than older systems: instead of processing words one after another, it looks at all words in a sentence simultaneously. This allows it to better understand how distant words relate to each other, which is very important for detecting toxicity where harmful meaning often appear from combinations of words across a message."
+
+Building on this foundation, \citet{devlin:2019} proposed Bidirectional Encoder Representations from Transformers (BERT), which introduced two key innovations. First, BERT trains by hiding random words in a sentence (like filling in blanks) and predicting them using both left and right context. This differs from older models that could only use previous words. Second, BERT learns whether two sentences logically follow each other, helping it understand conversation flow. These innovations enable BERT to create deep bidirectional representations that can be fine-tuned for downstream tasks with minimal architectural changes. The three toxicity detection models used in this study all use Transformers as base-architectures.
+
 To predict the toxicity of toots, we evaluated three models: Detoxify (Original), Detoxify (Unbiased) from Unitary, and Perspective API. These models predict probabilities for six to seven toxicity categories.
 
-\section{Mastodon Posts Annotation} \label{annotation}
+\textbf{Detoxify Original}\footnote{\url{https://huggingface.co/unitary/toxic-bert}} is trained on English text using the "Jigsaw Toxic Comment Classification Challenge" dataset, which comprises Wikipedia comments. The model predicts probability scores for toxicity labels, which include categories similar to those listed in Table~\ref{toxicity-categories}, but without the sexually explicit label. The model is based on the BERT-base-uncased transformer architecture and fine-tuned on the Jigsaw dataset. During prediction, the input text is tokenized and processed through the transformer model to generate the output scores \cite{detoxify:medium}.
+
+\textbf{Detoxify Unbiased}\footnote{\url{https://huggingface.co/unitary/unbiased-toxic-roberta}} also focuses on English text but is trained on the "Jigsaw Unintended Bias in Toxicity Classification" dataset. This dataset consists of comments from "Civil Comments" platform and includes additional labels for identities to reduce bias across different demographic groups. The labels align with those in Table~\ref{toxicity-categories}. The model employs the RoBERTa-base transformer architecture and is fine-tuned on the Jigsaw dataset. Like Detoxify Original, it tokenizes input text and processes it through the transformer model to produce probability scores for the labels \cite{detoxify:medium}.
+
+\textbf{Perspective API} supports multiple languages and addresses the challenge of limited forum data for some languages by using machine translation. Labeled English-language comments are translated into the target language to supplement training data. The training dataset is sourced from diverse platforms, including Wikipedia and The New York Times, with each comment annotated by 3--10 crowdsourced raters. The labels match those in Table~\ref{toxicity-categories}. The training process begins with multilingual BERT-based models trained on the dataset, which are then distilled into single-language Convolutional Neural Networks (CNNs) for each supported language. As well as the two Detoxify models, the Perspective API outputs probability scores for the toxicity labels \cite{lees:2022}.
+
+\section{Mastodon Toots Annotation} \label{annotation}
 All models were evaluated on a subset of the dataset. The selected timeframe was the evening of the 2024 Paris Olympic Games' opening ceremony, chosen due to the expectation of heightened online discussions and increased toxic content. The dataset covers the period from 20:00 to 23:00 on July~26, 2024, comprising 1,179,897 toots. This context switch may impact model performance but also demonstrates robustness in a new context.
 
 After predictions were completed, a sample was drawn for each model, selecting 25 toots per toxicity category with a predicted probability greater than 0.5. The selected toots were concatenated, and duplicates were removed, resulting in a final annotation dataset of 253 toots.
 
-Two researchers conducted the annotation process using Label Studio. The toots were labeled according to the categories in Table~\ref{toxicity-categories}. Hate speech annotation is highly subjective and influenced by annotator biases, affecting consistency and reliability. To ensure reliability, inter-annotator agreement was measured using Cohen's Kappa. The results showed perfect agreement (Cohen's Kappa = 1.0) for the categories toxic, severe toxic, threat, insult, and identity attack. Near-perfect agreement was achieved for obscene (Cohen's Kappa = 0.9907) and sexually explicit (Cohen's Kappa = 0.9735), indicating high consistency between annotators.
+Two researchers conducted the annotation process using Label Studio\footnote{\url{https://labelstud.io/}}. The toots were labeled according to the categories in Table~\ref{toxicity-categories}. Hate speech annotation is highly subjective and influenced by annotator biases, affecting consistency and reliability. To ensure reliability, inter-annotator agreement was measured using Cohen's Kappa. The results showed perfect agreement (Cohen's Kappa = 1.0) for the categories toxic, severe toxic, threat, insult, and identity attack. Near-perfect agreement was achieved for obscene (Cohen's Kappa = 0.9907) and sexually explicit (Cohen's Kappa = 0.9735), indicating high consistency between annotators.
 
 \begin{table}[tb]
     \centering\small
@@ -16,17 +26,18 @@ Two researchers conducted the annotation process using Label Studio. The toots w
         \textbf{Category} & \textbf{Description} \\
         \midrule
         TOXIC & A rude, disrespectful, or unreasonable comment that is likely to make someone leave a discussion. \\
-        SEVERE TOXIC & A very hateful, aggressive, or disrespectful comment that is highly likely to push someone away. \\
+        SEVERE TOXIC & A very hateful, aggressive, disrespectful comment or otherwise very likely to make a user leave a discussion or give up on sharing their perspective. \\
         IDENTITY ATTACK & Negative or hateful comments targeting someone because of their identity. \\
-        INSULT & Insulting, inflammatory, or negative comments towards a person or group. \\
+        INSULT & Insulting, inflammatory, or negative comments towards a person or a group of people. \\
         OBSCENE & Swear words, curse words, or other obscene or profane language. \\
         THREAT & Describes an intention to inflict pain, injury, or violence against an individual or group. \\
-        SEXUALLY EXPLICIT & Genital nudity or descriptions of simulated or actual sexual acts. \\
+        SEXUALLY EXPLICIT & Contains references to sexual acts, body parts, or other lewd content. \\
         \bottomrule
     \end{tabularx}
-    \caption{Toxicity Categories and Their Descriptions}
+    \caption[perspectiveapi]{Toxicity Categories and Their Descriptions. The Definitions are based on the Perspective API documentation\footnotemark.}
     \label{toxicity-categories}
 \end{table}
+\footnotetext{\url{https://developers.perspectiveapi.com/s/about-the-api-attributes-and-languages?language=en_US}}
 
 \section{Transformer-based Model Evaluation} \label{evaluation}
 The evaluation focused on the probability distributions of toxicity categories and the F1 scores across the three models: Perspective API, Detoxify (Original), and Detoxify (Unbiased). The F1 score, calculated as:

@@ -14,7 +14,7 @@ However, the aggregation of large numbers of individuals in online communities a
         "Rio had maybe five percent of the *racist* and *homophobic* from this disaster."
       }
     }
-    \caption{Three toxic examples posted during the 2024 Paris Olympics opening ceremony. Severe harmful words got replaced with the kind of offence.}
+    \caption{Three toxic examples posted during the 2024 Paris Olympics opening ceremony on Mastodon. Severe harmful words got replaced with the kind of offence.}
 \end{figure}
 
 Such behaviors can disrupt community solidarity and harm individual users, making toxicity a significant challenge for social media platforms. To mitigate these issues, online communities establish rules and moderation systems to enforce acceptable behavior. Violations of these rules can result in penalties, such as bans or restrictions, depending on the platform's moderation policies \cite{nicholson:2023}.
@@ -26,12 +26,11 @@ Like every social media platform, Mastodon offers the possibility to interact wi
 \begin{figure}[tb]
     \centering
     \includegraphics[width=\textwidth]{../material/network_models.jpg}
-    \caption{From left to right: Centralized networks funnel all connections through a single controlling hub; Federated networks organize nodes into semi-autonomous interconnected clusters; Distributed networks connect all nodes with multiple pathways, maximizing resilience through decentralization. \cite{mastodon:docs}}
+    \caption{From left to right: Centralized networks connect all through a single controlling hub; Federated networks organize nodes into semi-autonomous interconnected clusters; Distributed networks connect all nodes with multiple pathways. \cite{mastodon:docs}}
     \label{fig:network-models}
 \end{figure}
 
-To study the behavior of online communities on Mastodon, we analyze a dataset containing around 1.8 billion public Mastodon posts, called toots, collected from 1000 instances over the whole year 2024. The dataset includes metadata and the posted content, enabling an analysis of toxicity trends across instances and the interactions between them. However, given the scale of the dataset, traditional data processing methods are insufficient. To address this challenge, we build a distributed data processing pipeline using the Ray framework \cite{moritz:2018}. Ray provides a scalable and efficient platform for handling large-scale data, enabling us to perform tasks such as data deduplication, language detection, and toxicity prediction in a distributed manner.
-
-By building this pipeline, we aim to provide a scalable and reproducible framework for analyzing toxicity in large-scale social media datasets. The study not only contributes to understanding toxicity in federated social networks like Mastodon but also demonstrates the practical application of distributed computing frameworks like Ray for social media research. The pipeline's modular design allows for future extensions, such as incorporating additional toxicity models or adapting the workflow to other social media platforms.
+\paragraph{Research Gap and Contribution}
+Prior work has established foundational knowledge about Mastodon's structure \cite{zulli:2020,la_cava:2021}, moderation practices \cite{bono:2024,nicholson:2023}, and toxicity analysis methods \cite{fan:2022}. However, no study has systematically examined toxicity patterns across the entire Mastodon network while accounting for its federated architecture. Our research addresses this gap by conducting the first large-scale toxicity analysis of Mastodon. Our research addresses this gap by conducting the first large-scale toxicity analysis of Mastodon. We analyzed a 1\% subsample of 1.8~billion Mastodon posts (called ``toots'') across 1,000~instances collected throughout 2024. The results reveal two key findings: First, toxicity levels show significant spikes during major political and global events, particularly around the U.S.~election period. Second, active moderation practices correlate with lower mean toxicity levels on instances, demonstrating the effectiveness of decentralized moderation approaches.
 
 \enlargethispage{\baselineskip}
