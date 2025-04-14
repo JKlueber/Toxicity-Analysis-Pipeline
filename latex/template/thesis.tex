@@ -20,7 +20,7 @@
 % Values
 % ------
 \ThesisSetTitle{Analyzing Toxicity on Mastodon}
-\ThesisSetKeywords{These, are, my, Keywords} % only for PDF meta attributes
+\ThesisSetKeywords{Toxicity, Mastodon, Instances, Pipeline, Moderation} % only for PDF meta attributes
 \ThesisSetLocation{Jena} 
 
 \ThesisSetAuthor{Julian Klüber}
@@ -29,35 +29,30 @@
 \ThesisSetPlaceOfBirth{Hünfeld}
 
 % Supervisors should usually be Professors from the candidate's university. A second supervisor is not always needed. 
-\ThesisSetSupervisors{Prof.\ Dr.\ Hagen}
+\ThesisSetSupervisors{Prof.\ Dr.\ Matthias Hagen, Matti Wiegmann{,}\ M.Sc.}
 
 \ThesisSetSubmissionDate{16}{04}{2025}
 
 \usepackage{graphicx}
-\usepackage{tabularx}
-\usepackage{todonotes}
-\usepackage{wrapfig}
-\usepackage{tcolorbox}
-\usepackage{amsmath}
-
 
 %
 % Suggested Packages
 % ------------------
-\usepackage[sort&compress, numbers]{natbib}
+\usepackage[style=alphabetic,natbib=true,backend=biber]{biblatex}
+\addbibresource{literature.bib}
 %   Allows citing in different ways (e.g., only the authors if you use the
 %   citation again within a short time).
 %
 \usepackage{booktabs}
 %    For tables ``looking the right way''.
 %
-% \usepackage{tabularx}
+\usepackage{tabularx}
 %    Enables tables with columns that automatically fill the page width.
 %
 % \usepackage[ruled,algochapter]{algorithm2e}
 %    A package for pseudo code algorithms.
 %
-% \usepackage{amsmath}
+\usepackage{amsmath}
 %    For tabular-style formatting of mathematical environments.
 %
 
@@ -85,6 +80,9 @@
 \begin{document}
 \begin{frontmatter}
 \begin{abstract}
+  Social media platforms face significant challenges in mitigating toxic behavior, such as hate speech and harassment, due to their scale and anonymity. While centralized platforms like Twitter/X have been extensively studied, decentralized alternatives like Mastodon remain under-researched, particularly regarding large-scale toxicity patterns and the effectiveness of decentralized moderation. Existing studies on Mastodon are limited by small datasets or short time periods, failing to capture platform-wide trends or the impact of moderation practices across its federated network.
+
+  This study addresses this gap by conducting the first large-scale toxicity analysis on Mastodon, analyzing approximately 18 million posts ("toots") from 1,000 instances throughout 2024. Using a transformer-based toxicity classifier, we examined how toxicity fluctuates during major events and how moderation policies influence these patterns. Our results reveal two key findings: First, toxicity levels spike during politically charged events, such as the 2024 U.S. election. Second, instances with active moderation practices, such as adherence to the Mastodon Covenant or isolation from blocklisted instances, seem to lead to lower toxicity levels. These findings demonstrate that decentralized moderation can effectively reduce toxicity, though inconsistencies across instances remain a challenge. This work provides foundational insights into toxicity dynamics in decentralized social networks and highlights the role of moderation in shaping healthier online communities.
 \end{abstract}
 
 \tableofcontents
@@ -110,8 +108,9 @@
 \include{chapter6}
 
 % Bibliography
-\bibliographystyle{plainnat} % requires package natbib. An alternative is apalike
-\bibliography{literature}    % load file literature.bib
+% \bibliographystyle{plainnat} % requires package natbib. An alternative is apalike
+% \bibliography{literature}    % load file literature.bib
+\printbibliography
 
 \end{document}
 
