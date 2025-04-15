@@ -34,6 +34,7 @@
 \ThesisSetSubmissionDate{16}{04}{2025}
 
 \usepackage{graphicx}
+\usepackage{pdfpages}
 
 %
 % Suggested Packages
@@ -80,15 +81,29 @@
 \begin{document}
 \begin{frontmatter}
 \begin{abstract}
-  Social media platforms face significant challenges in mitigating toxic behavior, such as hate speech and harassment, due to their scale and anonymity. While centralized platforms like Twitter/X have been extensively studied, decentralized alternatives like Mastodon remain under-researched, particularly regarding large-scale toxicity patterns and the effectiveness of decentralized moderation. Existing studies on Mastodon are limited by small datasets or short time periods, failing to capture platform-wide trends or the impact of moderation practices across its federated network.
+  Social media platforms face significant challenges in mitigating toxic behavior, such as hate speech and harassment, due to their scale and anonymity. While centralized platforms like Twitter/X have been extensively studied, decentralized alternatives like Mastodon remain under-researched, particularly regarding large-scale toxicity patterns and the effectiveness of decentralized moderation. Existing studies on Mastodon are limited by small datasets or short time periods, failing to capture platform-wide trends or the impact of moderation practices across its decentralized network.
 
-  This study addresses this gap by conducting the first large-scale toxicity analysis on Mastodon, analyzing approximately 18 million posts ("toots") from 1,000 instances throughout 2024. Using a transformer-based toxicity classifier, we examined how toxicity fluctuates during major events and how moderation policies influence these patterns. Our results reveal two key findings: First, toxicity levels spike during politically charged events, such as the 2024 U.S. election. Second, instances with active moderation practices, such as adherence to the Mastodon Covenant or isolation from blocklisted instances, seem to lead to lower toxicity levels. These findings demonstrate that decentralized moderation can effectively reduce toxicity, though inconsistencies across instances remain a challenge. This work provides foundational insights into toxicity dynamics in decentralized social networks and highlights the role of moderation in shaping healthier online communities.
+  This study addresses this gap by conducting a large-scale toxicity analysis on Mastodon, analyzing approximately 15 million posts (so-called "toots") from 724 instances throughout 2024. Using a transformer-based toxicity classifier, we examined how toxicity fluctuates during major events and how moderation policies influence these patterns. Our results reveal two key findings: First, toxicity levels spike during politically charged events, such as the 2024 U.S. election. Second, instances with active moderation practices, such as adherence to the Mastodon Covenant or isolation from blocklisted instances, significantly lower toxicity levels. These findings demonstrate that decentralized moderation can effectively reduce toxicity, though inconsistencies across instances remain a challenge. This work provides foundational insights into toxicity dynamics in decentralized social networks and highlights the role of moderation in shaping healthier online communities. It furthermore offers a scalable technical pipeline for analysing large volumes of text in decentralised systems.
 \end{abstract}
+
+\newpage
+
+\chapter*{Zusammenfassung}
+
+Diese Bachelorarbeit analysiert in großem Umfang toxisches Verhalten auf der dezentralen Social-Media-Plattform Mastodon. Ziel war es, großflächige Muster von Beleidigungen, Hass und anderen toxischen Inhalten im Jahr 2024 zu untersuchen und den Einfluss von Moderationsrichtlinien innerhalb dezentralisierter Netzwerke zu bewerten. Dazu wurden rund 15~Millionen öffentliche Beiträge („Toots“) aus 724 Instanzen mit einem transformer-basierten Sprachmodell ausgewertet.
+
+Die Ergebnisse zeigen zwei zentrale Befunde: Erstens sind deutliche Ausschläge der durchschnittlichen Toxizität bei politischen und globalen Ereignissen auf, insbesondere in Bezug auf einzelne Ereignisse während der US-Wahl 2024. Zweitens weisen Instanzen mit aktiver Moderation, durch Verpflichtung zur Mastodon Covenant oder Isolation von auf Sperlisten genannten Instanzen, signifikant geringere durchschnittliche Toxizitätswerte auf. Auch die dezentrale Moderation zeigt Wirkung, obwohl unterschiedliche Regelwerke zu Inkonsistenzen führen können.
+
+Die Arbeit liefert grundlegende Erkenntnisse über die Toxizitätsdynamik in dezentralen sozialen Netzwerken und hebt hervor, dass gezielte Moderation zur Reduktion toxischer Inhalte beiträgt. Zudem bietet sie eine skalierbare technische Pipeline zur Analyse großer Textmengen in dezentralisierten Systemen.
 
 \tableofcontents
 
-% \chapter*{Acknowledgements} % optional
-% I thank the authors of the webisthesis template for their excellent work!
+\chapter*{Acknowledgements}
+I would like to thank \textbf{Prof. Dr. Matthias Hagen} for giving me the opportunity to work on this thesis topic at his chair.
+
+My sincere gratitude goes to my supervisors, \textbf{Matti Wiegmann, M.Sc.} and \textbf{Heinrich Merker, M.Sc.}, for their invaluable support throughout this project. Thank you, Matti, for guiding me with your expertise in computational social science—you helped me gain a deeper understanding of the subject. And thank you, Heinrich, for assisting me with technical challenges and providing great feedback.
+
+Thank you all for your support, time, and encouragement.
 
 % \listoffigures % optional, usually not needed
 
@@ -106,11 +121,14 @@
 \include{chapter4}
 \include{chapter5}
 \include{chapter6}
+\include{chapter7}
 
 % Bibliography
 % \bibliographystyle{plainnat} % requires package natbib. An alternative is apalike
 % \bibliography{literature}    % load file literature.bib
 \printbibliography
+
+\includepdf[pages=-]{../material/declaration_of_academic_integrity.pdf}
 
 \end{document}
 

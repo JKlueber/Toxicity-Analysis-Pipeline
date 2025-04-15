@@ -1,23 +1,31 @@
 \chapter{Discussion} \label{discussion}
 
-The temporal analysis showed clear peaks in toxicity corresponding to major political and global events throughout 2024, particularly around the U.S. election period. The distribution of toxicity levels from highest in blocklisted instances to lowest in non-communicating ones suggests an influence of moderation practices on platform toxicity.
+The temporal analysis showed clear peaks in toxicity corresponding to major political and global events throughout 2024, particularly around the U.S. election period. The distribution of toxicity levels from highest in blocklisted instances to lowest in non-communicating ones suggests an influence of moderation practices on platform toxicity. The statistical comparisons revealed significant differences in toxicity levels between moderation practices, with particularly strong effects observed between actively moderated and poorly moderated spaces. These results collectively suggest a clear influence of moderation practices on platform toxicity.
 
 \paragraph{Interpretation of Key Findings}
-The results indicate that our toxicity prediction pipeline successfully captured patterns in the Mastodon dataset, despite limitations in model selection. The clear distribution of toxicity levels across instance categories supports our hypothesis that decentralized moderation practices influence platform toxicity. The temporal peaks suggest that global events can trigger increased toxic discourse, particularly in politically charged contexts. These findings validate our approach of using transformer-based models for large-scale toxicity analysis in federated social networks.
+The results indicate that our toxicity prediction pipeline successfully captured patterns in the Mastodon dataset, despite limitations in model selection. The temporal peaks suggest that global events can trigger increased toxic discourse, particularly in politically charged contexts. The clear distribution of toxicity levels across moderation practices supports our hypothesis that decentralized moderation practices influence platform toxicity. Statistical evidence reveals two interesting patterns in toxicity distribution across Mastodon instances: 
+\begin{enumerate}
+    \item Moderated instances exhibited significantly lower toxicity levels than blocklisted instances, highlighting the impact of moderation policies.
+    \item Toxicity levels were significantly higher in communicating instances compared to non-communicating ones, suggesting network-driven propagation of toxic content.
+\end{enumerate}
 
 \paragraph{Comparison with Previous Work}
-Our findings align with and extend previous research on decentralized moderation. \citet{bono:2024} observed widespread blocklist usage across Mastodon instances and raised concerns about potential misuse for moderating instances that may not require intervention. Our analysis demonstrates that blocklisted instances exhibit higher mean toxicity levels, while instances not communicating with blocklisted content maintain the lowest toxicity. This evidence suggests that blocklists effectively moderate genuinely harmful instances when properly implemented. 
+Our findings align with and extend previous research on decentralized moderation. \citet{bono:2024} observed widespread blocklist usage across Mastodon instances and raised concerns about potential misuse for moderating instances that may not require intervention. Our analysis demonstrates that blocklisted instances exhibit significantly higher mean toxicity levels, while instances not communicating with blocklisted content maintain the lowest toxicity.
 
-The temporal dimension of our analysis provides new insights into toxicity evolution during real-world events, complementing event-focused studies like \citet{fan:2022} on toxicity patterns during health crises.
+Our study extends the binary toxicity classification approach of \citet{al-khateeb:2022} by performing two diffrent analysis. First, rather than treating all content uniformly, we examine toxicity patterns across four distinct instance categories differentiated by their moderation policies, revealing how moderation strategies directly impact toxic discourse. Second, where previous work provided only a static snapshot, we incorporate temporal dynamics through a 12-month longitudinal analysis, capturing how toxicity fluctuates in response to real-world events. This complements event-focused studies like the study from \citet{fan:2022} on toxicity patterns during health crises on Twitter/X, suggesting that external events trigger similar toxic discourse patterns regardless of a platform's architectural design.
 
 \paragraph{Limitations}
 Our study has several limitations that should be considered when interpreting the results.
 
-\subparagraph{Model Selection}
-We compared three toxicity detection models using a small labeled subset of 256 toots. While the F1 scores were suboptimal for all models, we prioritized prediction confidence, ultimately selecting the Detoxify Unbiased model. This small validation set may not fully represent the diversity of toxic content in our dataset. However, the model's performance in identifying toxicity trends across instances suggests it was suitable for our analysis goals.
+We compared three toxicity detection models using a small labeled subset of 256 toots. While the F1 scores were suboptimal for all models, we prioritized prediction confidence, ultimately selecting the Detoxify Unbiased model. This small validation set may not fully represent the diversity of toxic content in our dataset.
 
-\subparagraph{Data Scope}
-The analysis used a 1\% subset (approximately 18 million toots) rather than the full dataset due to computational constraints. We omitted our planned deduplication and merging methods because the subset contained fewer duplicates (50\% versus 95\% in the full dataset). The LSH-based methods for deduplication and merging require optimization for full-dataset analysis, particularly regarding memory management during index queries.
+The analysis used a 1\% subset of approx 15~million toots rather than the full dataset due to computational and time constraints. We omitted our planned deduplication and merging methods because the subset contained fewer duplicates (50\% versus 95\% in the full dataset). The LSH-based methods for deduplication and merging require optimization for full-dataset analysis, particularly regarding memory management during LSH index queries.
+
+Analyzing based on the classification into Blocklisted, Moderated, Communicating, and Non-communicating, defined in Section \ref{moderation:categorization}, presents a simplified perspective, as instances may be blocklisted for various reasons beyond toxicity, including spam or commercial content, rather than solely for inadequate moderation of hate speech.
+
+In our analysis we did not pay attention to demographic data about the users. The observed effects could stem from differences in user groups (e.g., an instance dominated by far-right users versus one with left-leaning users) rather than moderation practices.
+
+\newpage
 
 \paragraph{Future Work}
 Several promising directions emerge from this research:
@@ -26,4 +34,4 @@ First, analyzing the full dataset with optimized LSH methods would improve resul
 
 Second, exploring all seven toxicity labels from our model could reveal category-specific patterns. Our focus on overall toxicity provides a broad view, but deeper analysis of specific toxic behaviors (e.g., identity attacks versus threats) might yield more nuanced insights.
 
-Third, there is an interesting pattern in the data that we could not analyze in this work. The number of toots marked as sensitive is very high on November~6, 2024, which is the day after the US election. This day is also the day with the highest toxicity prediction across all instances (Figure~\ref{sensitive-toots}). Since users often mark toxic content as sensitive to flag it for removal, further analysis could reveal how effective this moderation strategy is at actually reducing toxicity. 
+Third, there is an interesting pattern in the data that we could not analyze in this work. The percentage of toots marked as sensitive is very high on November~6, 2024, which is the day after the US election. This day is also the day with the highest toxicity prediction across all instances (Figure~\ref{sensitive-toots}). Since users often mark toxic content as sensitive to flag it for removal, further analysis could reveal how effective this moderation strategy is at actually reducing toxicity. 
