@@ -6,7 +6,6 @@ from huggingface_hub import hf_hub_download
 from pandas import DataFrame
 
 import gc
-import ray 
 
 class LanguageDetector:
 

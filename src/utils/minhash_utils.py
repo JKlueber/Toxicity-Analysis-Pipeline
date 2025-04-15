@@ -5,8 +5,6 @@ from pandas import DataFrame
 from datasketch import MinHashLSH, MinHash
 import pickle
 from pathlib import Path
-import psutil
-import os
 
 from ray.data import read_parquet_bulk
 import ray
@@ -15,6 +13,7 @@ from functools import cached_property
 
 from src.config.config_loader import load_config
 
+# Computes MinHash for each batch
 class CalculateMinHash:
     def compute_hash(self, plaintext):
         m = MinHash(num_perm=64, seed=1)
@@ -26,6 +25,7 @@ class CalculateMinHash:
 
         return batch
 
+# Creates LSH instances for each batch
 class LSHBuilder:
     def __call__(self, batch: pd.DataFrame) -> pd.DataFrame:
         lsh = MinHashLSH(threshold=0.9, num_perm=64)
@@ -39,6 +39,7 @@ class LSHBuilder:
         gc.collect()
         return lsh_df
 
+# Finds duplicates in the Dataset
 class HashFinder:
 
     @cached_property
@@ -59,7 +60,8 @@ class HashFinder:
 
         gc.collect()
         return pd.DataFrame(output_batch, columns=batch.columns)
-    
+
+# Merges deduplicated Dataset with complete Dataset
 class MergeHash:
 
     @cached_property
@@ -109,7 +111,8 @@ class MergeHash:
         gc.collect()
 
         return output_batch
-    
+
+# Merges LSH instances on one index
 @ray.remote(memory=50 * 1024**3)
 class MergeLSHActor:
     def __init__(self):
